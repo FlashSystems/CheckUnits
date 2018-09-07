@@ -20,7 +20,9 @@ function CheckState () {
 			[ "$unitState" == "$preset" ] || remarks+=("I: Unit is enabled but preset wants it to be $preset.:Create a preset file in {{{/etc/systemd/system-preset/}}} containing {{{enable $id}}}")
 
 			# If the unit is enabled it should not be inactive. If it's in failed state we've already reported this.
-			[ "$activeState" == "inactive" ] && remarks+=("W: Unit is enabled but not active.:Use {{{systemctl start $id}}} to start the unit.")
+			if [ "$activeState" == "inactive" ]; then
+				[ "$result" == "success" ] && remarks+=("I: Unit is enabled but not active. It exited with the result "'"'"$result"'"'". It's very like you don't need to do anything.") || remarks+=("W: Unit is enabled but not active.:Use {{{systemctl start $id}}} to start the unit.")
+			fi
 			;;
 		disabled)
 			[ "$unitState" == "$preset" ] || remarks+=("I: Unit is disabled but preset wants it to be $preset.:Create a preset file in {{{/etc/systemd/system-preset/}}} containing {{{disable $id}}}.")
@@ -57,6 +59,7 @@ while IFS="=" read -r key value; do
 		case "$key" in
 			Id) id="$value" ;;
 			Type) unitType="$value" ;;
+			Result) result="$value" ;;
 			UnitFileState) unitState="$value" ;;
 			ActiveState) activeState="$value" ;;
 			TriggeredBy) triggeredby="$value" ;;
