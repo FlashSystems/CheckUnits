@@ -60,12 +60,14 @@ while IFS="=" read -r key value; do
 			Id) id="$value" ;;
 			Type) unitType="$value" ;;
 			Result) result="$value" ;;
+			NRestarts) restarts="$value" ;;
+			RemainAfterExit) remainAfterExit="$value" ;;
 			UnitFileState) unitState="$value" ;;
 			ActiveState) activeState="$value" ;;
 			TriggeredBy) triggeredby="$value" ;;
 			UnitFilePreset) preset="$value" ;;
 		esac
 	fi
-done < <(systemctl show --all '*')
+done < <(systemctl show -p Id -p Type -p Result -p NRestarts -p RemainAfterExit -p UnitFileState -p UnitFilePreset -p ActiveState -p TriggeredBy '*')
 
 CheckState
