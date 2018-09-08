@@ -14,6 +14,7 @@ function CheckState () {
 	local remarks=()
 
 	[ "$activeState" == "failed" ] && remarks+=("E: Unit is is failed state.:Check why it has failed using {{{systemctl status $id}}} or use {{{systemctl reset-failed $id}}} to reset the failed state of the unit.")
+	[ $restarts -gt 0 ] && remarks+=("W: The Unit $id was automatically restarted $restarts times.:Maybe there is something wrong with it. You should check the logs via {{{journalctl -le -u $id}}}.")
 
 	case "$unitState" in
 		enabled)
