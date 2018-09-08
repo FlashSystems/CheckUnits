@@ -14,22 +14,39 @@ function CheckState () {
 	local remarks=()
 
 	[ "$activeState" == "failed" ] && remarks+=("E: Unit is is failed state.:Check why it has failed using {{{systemctl status $id}}} or use {{{systemctl reset-failed $id}}} to reset the failed state of the unit.")
-	[ $restarts -gt 0 ] && remarks+=("W: The Unit $id was automatically restarted $restarts times.:Maybe there is something wrong with it. You should check the logs via {{{journalctl -le -u $id}}}.")
+	[ -n "$restarts" ] && [ "$restarts" -gt "0" ] && remarks+=("W: The Unit $id was automatically restarted $restarts times.:Maybe there is something wrong with it. You should check the logs via {{{journalctl -le -u $id}}}.")
+
+	# If this unit was enabled but is not active and the ConflictedBy value is set we check if any of the 
+	# conflicting units is running. If that's the case the conflicted variable is set.
+	conflicted=0
+	if [ "$activeState" == "inactive" ] && [ "$unitState" == "enabled" ] && [ -n "$conflictedBy" ]; then
+		while IFS="" read -s -d" " conflict; do
+			if systemctl -q is-active "$conflict"; then
+				conflicted=1
+				break
+			fi
+		done <<< "$conflictedBy " # Mind the space at the end of this string!
+	fi
 
 	case "$unitState" in
 		enabled)
 			[ "$unitState" == "$preset" ] || remarks+=("I: Unit is enabled but preset wants it to be $preset.:Create a preset file in {{{/etc/systemd/system-preset/}}} containing {{{enable $id}}}")
 
 			# If the unit is enabled it should not be inactive. If it's in failed state we've already reported this.
-			if [ "$activeState" == "inactive" ]; then
-				[ "$result" == "success" ] && remarks+=("I: Unit is enabled but not active. It exited with the result "'"'"$result"'"'". It's very like you don't need to do anything.") || remarks+=("W: Unit is enabled but not active.:Use {{{systemctl start $id}}} to start the unit.")
+			# If the unit is conflicted we do not report this because someone wanted the unit to be off now.
+			if [ "$activeState" == "inactive" ] && [ $conflicted -eq 0 ]; then
+				if [ "$type" == "simple" ] && [ "$remainAfterExit" == "no" ] && [ "$result" == "success" ];then
+					remarks+=("I: Unit is enabled but not active. It exited with the result "'"'"$result"'"'". It's very like you don't need to do anything.")
+				else
+					remarks+=("W: Unit is enabled but not active.:Use {{{systemctl start $id}}} to start the unit.")
+				fi
 			fi
 			;;
 		disabled)
 			[ "$unitState" == "$preset" ] || remarks+=("I: Unit is disabled but preset wants it to be $preset.:Create a preset file in {{{/etc/systemd/system-preset/}}} containing {{{disable $id}}}.")
 
-			# If the unit is disabled it should be inactive as long as it's not triggered by another unit
-			[ "$activeState" == "inactive" ] || [ "$triggeredBy" == "" ] || remarks+=("W: Unit is disabled but $activeState.:Use {{{systemctl stop $id}}} to stop the unit.")
+			# If the unit is disabled it should be inactive as long as it's not triggered by another unit or by dbus
+			[ "$activeState" == "inactive" ] || [ "$triggeredBy" == "" ] || [ "$type" == "dbus" ] || remarks+=("W: Unit is disabled but $activeState.:Use {{{systemctl stop $id}}} to stop the unit.")
 			;;
 	esac
 
@@ -67,8 +84,9 @@ while IFS="=" read -r key value; do
 			ActiveState) activeState="$value" ;;
 			TriggeredBy) triggeredby="$value" ;;
 			UnitFilePreset) preset="$value" ;;
+			ConflictedBy) conflictedBy="$value" ;;
 		esac
 	fi
-done < <(systemctl show -p Id -p Type -p Result -p NRestarts -p RemainAfterExit -p UnitFileState -p UnitFilePreset -p ActiveState -p TriggeredBy '*')
+done < <(systemctl show -p Id -p Type -p Result -p NRestarts -p RemainAfterExit -p UnitFileState -p UnitFilePreset -p ActiveState -p TriggeredBy -p ConflictedBy '*')
 
 CheckState
