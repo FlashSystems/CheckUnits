@@ -6,14 +6,14 @@ COMMIT='$Id$'
 VERSION="0.2"
 
 # Output font and color definitions
-fontBold=$(tput smul)
-fontInfo=$(tput setaf black; tput setab 6)
-fontWarn=$(tput setaf black; tput setab 3)
-fontError=$(tput setaf black; tput setab 1)
-fontCode=$(tput bold)
-fontReset=$(tput sgr0)
-fontDone=$(tput setaf 2; tput bold)
-fontDoneRemarks=$(tput setaf 3; tput bold)
+fontBold=$(tput -S <<< $'smul')
+fontInfo=$(tput -S <<< $'setaf black\nsetab 6')
+fontWarn=$(tput -S <<< $'setaf black\nsetab 3')
+fontError=$(tput -S <<< $'setaf black\nsetab 1')
+fontCode=$(tput -S <<< $'bold')
+fontReset=$(tput -S <<< $'sgr0')
+fontDone=$(tput -S <<< $'setaf 2\nbold')
+fontDoneRemarks=$(tput -S <<< $'setaf 3\nbold')
 
 # Checks the state of the unit file by using a bunch of global variables.
 # These checks are based on the information in https://www.freedesktop.org/wiki/Software/systemd/dbus/
