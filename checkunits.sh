@@ -60,7 +60,8 @@ function CheckState () {
 	# End of checks. Start of output routine
 	if [ ${#remarks[@]} -gt 0 ]; then
 		echo "Remarks for unit $colorBold$id$colorReset:"
-		while IFS=":" read severity msg suggestion; do
+		for remark in "${remarks[@]}"; do
+			IFS=":" read severity msg suggestion <<< "$remark"
 			case "$severity" in
 				I) echo -en "$colorInfo[ INFO  ]" ;;
 				W) echo -en "$colorWarn[WARNING]" ;;
@@ -73,8 +74,8 @@ function CheckState () {
 				suggestion=${suggestion//\}\}\}/$colorReset}
 				echo -e "$suggestion$colorReset"
 			fi
-			echo
 		done <<< "$remarks"
+		echo
 	fi
 }
 
