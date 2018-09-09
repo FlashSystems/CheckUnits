@@ -1,5 +1,10 @@
 #!/bin/bash
+#$Id$
 
+# Version
+VERSION="0.2"
+
+# Colors
 colorBold=$(tput smul)
 colorInfo=$(tput setaf black; tput setab 6)
 colorWarn=$(tput setaf black; tput setab 3)
