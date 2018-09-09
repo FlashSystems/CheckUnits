@@ -91,7 +91,7 @@ function CheckState () {
 	return ${#remarks[@]}
 }
 
-echo "CheckServices v${VERSION} (${COMMIT//\$/})..."
+echo "CheckServices v${VERSION} (${COMMIT:5:10})..."
 
 messageCount=0
 while IFS="=" read -r key value; do
