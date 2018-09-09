@@ -1,9 +1,9 @@
 #!/bin/bash
 
 colorBold=$(tput smul)
-colorInfo=$(tput setaf black; tput setab 12)
-colorWarn=$(tput setaf black; tput setab 11)
-colorError=$(tput setaf black; tput setab 9)
+colorInfo=$(tput setaf black; tput setab 6)
+colorWarn=$(tput setaf black; tput setab 3)
+colorError=$(tput setaf black; tput setab 1)
 colorCode=$(tput bold)
 colorReset=$(tput sgr0)
 
