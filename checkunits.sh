@@ -21,11 +21,19 @@ fontDoneRemarks=$(tput -S <<< $'setaf 3\nbold')
 function CheckState () {
 	[ "${unitType}" == 'oneshot' ] && return 0
 	[ "${unitState}" == 'transient' ] && return 0
+
+	# Map the current ActiveState of the unit to a more simple ActiveStateClass to simplify
+	# the rest of the cheks.
+	case "${activeState}" in
+		'active'|'reloading'|'activating') simpleState='active' ;;
+		'inactive'|'deactivating') simpleState='inactive' ;;
+		'failed') simpleState='failed' ;;
+	esac
 	
 	local remarks=()
 
 	# Check for failed and restarted units.
-	[ "${activeState}" == 'failed' ] && remarks+=("E: Unit is is failed state.:Check why it has failed using [[systemctl status ${id}]] or use [[journalctl -le -u ${id}]] to view the log. If everything is ok but you don't want to restart the unit, you can use [[systemctl reset-failed ${id}]] to reset the failed state.")
+	[ "${simpleState}" == 'failed' ] && remarks+=("E: Unit is is failed state.:Check why it has failed using [[systemctl status ${id}]] or use [[journalctl -le -u ${id}]] to view the log. If everything is ok but you don't want to restart the unit, you can use [[systemctl reset-failed ${id}]] to reset the failed state.")
 	[ -n "${restarts}" ] && [ "${restarts}" -gt 0 ] && remarks+=("W: The Unit ${id} was automatically restarted $restarts times.:Maybe there is something wrong with it. You should check the logs via [[journalctl -le -u ${id}]].")
 
 	# If the service-unit has a sourcePath set that points to /etc/init.d it's a generated legacy unit.
@@ -35,7 +43,7 @@ function CheckState () {
 	# If this unit was enabled but is not active and the ConflictedBy value is set we check if any of the 
 	# conflicting units is running. If that's the case the conflicted variable is set.
 	conflicted=0
-	if [ "${activeState}" == 'inactive' ] && [ "${unitState}" == 'enabled' ] && [ -n "${conflictedBy}" ]; then
+	if [ "${simpleState}" == 'inactive' ] && [ "${unitState}" == 'enabled' ] && [ -n "${conflictedBy}" ]; then
 		while IFS="" read -r -s -d" " conflict; do
 			if systemctl -q is-active "${conflict}"; then
 				conflicted=1
@@ -50,7 +58,7 @@ function CheckState () {
 
 			# If the unit is enabled it should not be inactive. If it's in failed state we've already reported this.
 			# If the unit is conflicted we do not report this because someone wanted the unit to be off now.
-			if [ "${activeState}" == 'inactive' ] && [ $conflicted -eq 0 ]; then
+			if [ "${simpleState}" == 'inactive' ] && [ $conflicted -eq 0 ]; then
 				if [ "${unitType}" == 'simple' ] && [ "${remainAfterExit}" == 'no' ] && [ "${result}" == 'success' ];then
 					remarks+=("I: Unit is enabled but not active.:The unit exited with the result [[${result}]]. It's very like you don't need to do anything.")
 				else
@@ -62,7 +70,7 @@ function CheckState () {
 			[ "${unitState}" == "${preset}" ] || remarks+=("I: Unit is disabled but preset wants it to be $preset.:Create a preset file in [[/etc/systemd/system-preset/]] containing [[disable ${id}]] to change the preset to disabled or enable the unit via [[systemctl enable ${id}]]. For more information about presets use [[man systemd.preset]]..")
 
 			# If the unit is disabled it should be inactive as long as it's not triggered by another unit or by dbus
-			[ "${activeState}" == 'inactive' ] || [ "${triggeredBy}" == '' ] || [ "${unitType}" == 'dbus' ] || remarks+=("W: Unit is disabled but $activeState.:Use [[systemctl stop ${id}]] to stop the unit.")
+			[ "${simpleState}" == 'active' ] && [ "${triggeredBy}" == '' ] && remarks+=("W: Unit is disabled but $activeState.:Use [[systemctl stop ${id}]] to stop the unit.")
 			;;
 	esac
 
