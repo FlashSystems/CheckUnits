@@ -7,6 +7,8 @@ colorError=$(tput setaf black; tput setab 1)
 colorCode=$(tput bold)
 colorReset=$(tput sgr0)
 
+# Checks the state of the unit file by using a bunch of global variables.
+# These checks are based on the information in https://www.freedesktop.org/wiki/Software/systemd/dbus/
 function CheckState () {
 	[ "$unitType" == "oneshot" ] && return
 	[ "$unitState" == "transient" ] && return
