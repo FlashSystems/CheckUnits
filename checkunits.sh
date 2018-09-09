@@ -4,13 +4,13 @@
 # Version
 VERSION="0.2"
 
-# Colors
-colorBold=$(tput smul)
-colorInfo=$(tput setaf black; tput setab 6)
-colorWarn=$(tput setaf black; tput setab 3)
-colorError=$(tput setaf black; tput setab 1)
-colorCode=$(tput bold)
-colorReset=$(tput sgr0)
+# Output font and color definitions
+fontBold=$(tput smul)
+fontInfo=$(tput setaf black; tput setab 6)
+fontWarn=$(tput setaf black; tput setab 3)
+fontError=$(tput setaf black; tput setab 1)
+fontCode=$(tput bold)
+fontReset=$(tput sgr0)
 
 # Checks the state of the unit file by using a bunch of global variables.
 # These checks are based on the information in https://www.freedesktop.org/wiki/Software/systemd/dbus/
@@ -64,20 +64,20 @@ function CheckState () {
 
 	# End of checks. Start of output routine
 	if [ ${#remarks[@]} -gt 0 ]; then
-		echo "Remarks for unit $colorBold$id$colorReset:"
+		echo "Remarks for unit $fontBold$id$fontReset:"
 		for remark in "${remarks[@]}"; do
 			IFS=":" read severity msg suggestion <<< "$remark"
 			case "$severity" in
-				I) echo -en "$colorInfo[ INFO  ]" ;;
-				W) echo -en "$colorWarn[WARNING]" ;;
-				E) echo -en "$colorError[ ERROR ]" ;;
+				I) echo -en "$fontInfo[ INFO  ]" ;;
+				W) echo -en "$fontWarn[WARNING]" ;;
+				E) echo -en "$fontError[ ERROR ]" ;;
 			esac
-			echo -en "$colorReset"
+			echo -en "$fontReset"
 			echo "$msg"
 			if [ -n "$suggestion" ]; then
-				suggestion=${suggestion//\{\{\{/$colorCode}
-				suggestion=${suggestion//\}\}\}/$colorReset}
-				echo -e "$suggestion$colorReset"
+				suggestion=${suggestion//\{\{\{/$fontCode}
+				suggestion=${suggestion//\}\}\}/$fontReset}
+				echo -e "$suggestion$fontReset"
 			fi
 		done <<< "$remarks"
 		echo
