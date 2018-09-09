@@ -12,12 +12,15 @@ fontWarn=$(tput setaf black; tput setab 3)
 fontError=$(tput setaf black; tput setab 1)
 fontCode=$(tput bold)
 fontReset=$(tput sgr0)
+fontDone=$(tput setaf 2; tput bold)
+fontDoneRemarks=$(tput setaf 3; tput bold)
 
 # Checks the state of the unit file by using a bunch of global variables.
 # These checks are based on the information in https://www.freedesktop.org/wiki/Software/systemd/dbus/
+# The return code of this function is the number of remarks.
 function CheckState () {
-	[ "$unitType" == "oneshot" ] && return
-	[ "$unitState" == "transient" ] && return
+	[ "$unitType" == "oneshot" ] && return 0
+	[ "$unitState" == "transient" ] && return 0
 	
 	local remarks=()
 
@@ -83,13 +86,16 @@ function CheckState () {
 		done
 		echo
 	fi
+
+	return ${#remarks[@]}
 }
 
 echo "CheckServices v${VERSION} (${COMMIT//\$/})..."
 
+messageCount=0
 while IFS="=" read -r key value; do
 	if [ -z "$key" ]; then
-		CheckState
+		CheckState; ((messageCount+=$?))
 	else
 		case "$key" in
 			Id) id="$value"; unitClass="${id##*.}" ;;
@@ -107,4 +113,10 @@ while IFS="=" read -r key value; do
 	fi
 done < <(systemctl show -p Id -p Type -p Result -p NRestarts -p RemainAfterExit -p UnitFileState -p UnitFilePreset -p ActiveState -p TriggeredBy -p ConflictedBy -p SourcePath '*')
 
-CheckState
+CheckState; ((messageCount+=$?))
+
+if [ $messageCount -gt 0 ]; then
+	echo -e "${fontDone}Check completed. ${fontDoneRemarks}$messageCount remarks.${fontReset}"
+else
+	echo -e "${fontDone}Check completed without remarks.${fontReset} This does not mean everything will work as expected ;)"
+fi
