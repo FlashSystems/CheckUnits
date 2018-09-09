@@ -2,7 +2,8 @@
 This shell script checks the systemd configuration of a modern Linux system and makes suggestions to optimize the use of systemd. If an issue is found the script tries to tell you the commands to solve or further investigate the issue to get you started.
 
 ## Dependencies
-This script does not have many dependencies. It was tests with bash 4.4 and systemd 239 but should work with older versions as well.
+This script does not have any dependencies besides `bash` and `systemd`.
+It was tests with bash 4.4 and systemd 239 but should work with older versions as well.
 
 ## Usage
 Just clone or export the repository and call `checkunits.sh`.
