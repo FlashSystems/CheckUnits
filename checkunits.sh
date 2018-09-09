@@ -70,7 +70,9 @@ function CheckState () {
 			[ "${unitState}" == "${preset}" ] || remarks+=("I: Unit is disabled but preset wants it to be $preset.:Create a preset file in [[/etc/systemd/system-preset/]] containing [[disable ${id}]] to change the preset to disabled or enable the unit via [[systemctl enable ${id}]]. For more information about presets use [[man systemd.preset]]..")
 
 			# If the unit is disabled it should be inactive as long as it's not triggered by another unit or by dbus
-			[ "${simpleState}" == 'active' ] && [ "${triggeredBy}" == '' ] && remarks+=("W: Unit is disabled but $activeState.:Use [[systemctl stop ${id}]] to stop the unit.")
+			# For the dbus units we should check that there is really dbus activation registered for this unit. But communicating
+			# with the dbus service and checking the configuration is beyond the scope this script.
+			[ "${simpleState}" == 'active' ] && [ "${triggeredBy}" == '' ] && [ "${unitType}" != 'dbus' ] && remarks+=("W: Unit is disabled but $activeState.:Use [[systemctl stop ${id}]] to stop the unit.")
 			;;
 	esac
 
