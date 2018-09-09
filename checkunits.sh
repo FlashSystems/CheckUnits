@@ -32,7 +32,7 @@ function CheckState () {
 	# conflicting units is running. If that's the case the conflicted variable is set.
 	conflicted=0
 	if [ "$activeState" == "inactive" ] && [ "$unitState" == "enabled" ] && [ -n "$conflictedBy" ]; then
-		while IFS="" read -s -d" " conflict; do
+		while IFS="" read -r -s -d" " conflict; do
 			if systemctl -q is-active "$conflict"; then
 				conflicted=1
 				break
@@ -47,7 +47,7 @@ function CheckState () {
 			# If the unit is enabled it should not be inactive. If it's in failed state we've already reported this.
 			# If the unit is conflicted we do not report this because someone wanted the unit to be off now.
 			if [ "$activeState" == "inactive" ] && [ $conflicted -eq 0 ]; then
-				if [ "$type" == "simple" ] && [ "$remainAfterExit" == "no" ] && [ "$result" == "success" ];then
+				if [ "$unitType" == "simple" ] && [ "$remainAfterExit" == "no" ] && [ "$result" == "success" ];then
 					remarks+=("I: Unit is enabled but not active. It exited with the result "'"'"$result"'"'". It's very like you don't need to do anything.")
 				else
 					remarks+=("W: Unit is enabled but not active.:Use {{{systemctl start $id}}} to start the unit.")
@@ -58,7 +58,7 @@ function CheckState () {
 			[ "$unitState" == "$preset" ] || remarks+=("I: Unit is disabled but preset wants it to be $preset.:Create a preset file in {{{/etc/systemd/system-preset/}}} containing {{{disable $id}}} to change the preset to disabled or enable the unit via {{{systemctl enable $id}}}. For more information about presets use {{{man systemd.preset}}}..")
 
 			# If the unit is disabled it should be inactive as long as it's not triggered by another unit or by dbus
-			[ "$activeState" == "inactive" ] || [ "$triggeredBy" == "" ] || [ "$type" == "dbus" ] || remarks+=("W: Unit is disabled but $activeState.:Use {{{systemctl stop $id}}} to stop the unit.")
+			[ "$activeState" == "inactive" ] || [ "$triggeredBy" == "" ] || [ "$unitType" == "dbus" ] || remarks+=("W: Unit is disabled but $activeState.:Use {{{systemctl stop $id}}} to stop the unit.")
 			;;
 	esac
 
@@ -66,11 +66,11 @@ function CheckState () {
 	if [ ${#remarks[@]} -gt 0 ]; then
 		echo "Remarks for unit $fontBold$id$fontReset:"
 		for remark in "${remarks[@]}"; do
-			IFS=":" read severity msg suggestion <<< "$remark"
+			IFS=":" read -r severity msg suggestion <<< "$remark"
 			case "$severity" in
-				I) echo -en "$fontInfo[ INFO  ]" ;;
-				W) echo -en "$fontWarn[WARNING]" ;;
-				E) echo -en "$fontError[ ERROR ]" ;;
+				I) echo -en "$fontInfo"'[ INFO  ]' ;;
+				W) echo -en "$fontWarn"'[WARNING]' ;;
+				E) echo -en "$fontError"'[ ERROR ]' ;;
 			esac
 			echo -en "$fontReset"
 			echo "$msg"
@@ -79,7 +79,7 @@ function CheckState () {
 				suggestion=${suggestion//\}\}\}/$fontReset}
 				echo -e "$suggestion$fontReset"
 			fi
-		done <<< "$remarks"
+		done
 		echo
 	fi
 }
@@ -96,7 +96,7 @@ while IFS="=" read -r key value; do
 			RemainAfterExit) remainAfterExit="$value" ;;
 			UnitFileState) unitState="$value" ;;
 			ActiveState) activeState="$value" ;;
-			TriggeredBy) triggeredby="$value" ;;
+			TriggeredBy) triggeredBy="$value" ;;
 			UnitFilePreset) preset="$value" ;;
 			ConflictedBy) conflictedBy="$value" ;;
 			SourcePath) sourcePath="$value" ;;
