@@ -1,7 +1,8 @@
 #!/bin/bash
-#$Id$
 
-# Version
+# Version and Commit ID
+# shellcheck disable=SC2016
+COMMIT='$Id$'
 VERSION="0.2"
 
 # Output font and color definitions
@@ -83,6 +84,8 @@ function CheckState () {
 		echo
 	fi
 }
+
+echo "CheckServices v${VERSION} (${COMMIT//\$/})..."
 
 while IFS="=" read -r key value; do
 	if [ -z "$key" ]; then
