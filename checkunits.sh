@@ -37,7 +37,7 @@ function CheckState () {
 
 	case "$unitState" in
 		enabled)
-			[ "$unitState" == "$preset" ] || remarks+=("I: Unit is enabled but preset wants it to be $preset.:Create a preset file in {{{/etc/systemd/system-preset/}}} containing {{{enable $id}}}")
+			[ "$unitState" == "$preset" ] || remarks+=("I: Unit is enabled but preset wants it to be $preset.:Create a preset file in {{{/etc/systemd/system-preset/}}} containing {{{enable $id}}} to change the preset to enabled or disable the unit via {{{systemctl disable $id}}}. For more information about presets use {{{man systemd.preset}}}.")
 
 			# If the unit is enabled it should not be inactive. If it's in failed state we've already reported this.
 			# If the unit is conflicted we do not report this because someone wanted the unit to be off now.
@@ -50,7 +50,7 @@ function CheckState () {
 			fi
 			;;
 		disabled)
-			[ "$unitState" == "$preset" ] || remarks+=("I: Unit is disabled but preset wants it to be $preset.:Create a preset file in {{{/etc/systemd/system-preset/}}} containing {{{disable $id}}}.")
+			[ "$unitState" == "$preset" ] || remarks+=("I: Unit is disabled but preset wants it to be $preset.:Create a preset file in {{{/etc/systemd/system-preset/}}} containing {{{disable $id}}} to change the preset to disabled or enable the unit via {{{systemctl enable $id}}}. For more information about presets use {{{man systemd.preset}}}..")
 
 			# If the unit is disabled it should be inactive as long as it's not triggered by another unit or by dbus
 			[ "$activeState" == "inactive" ] || [ "$triggeredBy" == "" ] || [ "$type" == "dbus" ] || remarks+=("W: Unit is disabled but $activeState.:Use {{{systemctl stop $id}}} to stop the unit.")
