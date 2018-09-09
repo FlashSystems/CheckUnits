@@ -19,7 +19,6 @@ fontDoneRemarks=$(tput -S <<< $'setaf 3\nbold')
 # These checks are based on the information in https://www.freedesktop.org/wiki/Software/systemd/dbus/
 # The return code of this function is the number of remarks.
 function CheckState () {
-	[ "${unitType}" == 'oneshot' ] && return 0
 	[ "${unitState}" == 'transient' ] && return 0
 
 	# Map the current ActiveState of the unit to a more simple ActiveStateClass to simplify
@@ -59,9 +58,10 @@ function CheckState () {
 			# If the unit is enabled it should not be inactive. If it's in failed state we've already reported this.
 			# If the unit is conflicted we do not report this because someone wanted the unit to be off now.
 			if [ "${simpleState}" == 'inactive' ] && [ $conflicted -eq 0 ]; then
-				if [ "${unitType}" == 'simple' ] && [ "${remainAfterExit}" == 'no' ] && [ "${result}" == 'success' ];then
-					remarks+=("I: Unit is enabled but not active.:The unit exited with the result [[${result}]]. It's very like you don't need to do anything.")
-				else
+				# If the unit if of type oneshot and ramainAfterExit is no and it exited successfully (because if the simpleState where
+				# "failed" we wouldn't be here) then everything went as planned and we can ignore the inactive unit.
+				# The condition is a little awkward because it's negated.
+				if [ "${unitType}" != 'oneshot' ] || [ "${remainAfterExit}" != 'no' ]; then
 					remarks+=("W: Unit is enabled but not active.:Use [[systemctl start ${id}]] to start the unit.")
 				fi
 			fi
@@ -111,7 +111,6 @@ while IFS="=" read -r key value; do
 		case "${key}" in
 			Id) id="${value}"; unitClass="${id##*.}" ;;
 			Type) unitType="${value}" ;;
-			Result) result="${value}" ;;
 			NRestarts) restarts="${value}" ;;
 			RemainAfterExit) remainAfterExit="${value}" ;;
 			UnitFileState) unitState="${value}" ;;
@@ -122,7 +121,7 @@ while IFS="=" read -r key value; do
 			SourcePath) sourcePath="${value}" ;;
 		esac
 	fi
-done < <(systemctl show -p Id -p Type -p Result -p NRestarts -p RemainAfterExit -p UnitFileState -p UnitFilePreset -p ActiveState -p TriggeredBy -p ConflictedBy -p SourcePath '*')
+done < <(systemctl show -p Id -p Type -p NRestarts -p RemainAfterExit -p UnitFileState -p UnitFilePreset -p ActiveState -p TriggeredBy -p ConflictedBy -p SourcePath '*')
 
 CheckState; ((messageCount+=$?))
 
