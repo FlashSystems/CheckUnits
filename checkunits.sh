@@ -25,7 +25,7 @@ function CheckState () {
 	local remarks=()
 
 	# Check for failed and restarted units.
-	[ "${activeState}" == 'failed' ] && remarks+=("E: Unit is is failed state.:Check why it has failed using [[systemctl status ${id}]] or use [[systemctl reset-failed ${id}]] to reset the failed state of the unit.")
+	[ "${activeState}" == 'failed' ] && remarks+=("E: Unit is is failed state.:Check why it has failed using [[systemctl status ${id}]] or use [[journalctl -le -u ${id}]] to view the log. If everything is ok but you don't want to restart the unit, you can use [[systemctl reset-failed ${id}]] to reset the failed state.")
 	[ -n "${restarts}" ] && [ "${restarts}" -gt 0 ] && remarks+=("W: The Unit ${id} was automatically restarted $restarts times.:Maybe there is something wrong with it. You should check the logs via [[journalctl -le -u ${id}]].")
 
 	# If the service-unit has a sourcePath set that points to /etc/init.d it's a generated legacy unit.
