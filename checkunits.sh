@@ -3,7 +3,7 @@
 # Version and Commit ID
 # shellcheck disable=SC2016
 COMMIT='$Id$'
-VERSION="0.2"
+VERSION="0.3"
 
 # Output font and color definitions
 fontBold=$(tput -S <<< $'smul')
