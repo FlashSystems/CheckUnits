@@ -20,6 +20,7 @@ fontDoneRemarks=$(tput -S <<< $'setaf 3\nbold')
 # The return code of this function is the number of remarks.
 function CheckState () {
 	[ "${unitState}" == 'transient' ] && return 0
+	[ "${loadState}" == 'not-found' ] && return 0
 
 	# Map the current ActiveState of the unit to a more simple ActiveStateClass to simplify
 	# the rest of the cheks.
@@ -119,6 +120,7 @@ while IFS="=" read -r key value; do
 			UnitFilePreset) preset="${value}" ;;
 			ConflictedBy) conflictedBy="${value}" ;;
 			SourcePath) sourcePath="${value}" ;;
+			LoadState) loadState="${value}" ;;
 		esac
 	fi
 done < <(systemctl show -p Id -p Type -p NRestarts -p RemainAfterExit -p UnitFileState -p UnitFilePreset -p ActiveState -p TriggeredBy -p ConflictedBy -p SourcePath '*')
