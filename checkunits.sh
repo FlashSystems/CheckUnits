@@ -32,6 +32,14 @@ function CheckState () {
 		'inactive'|'deactivating') simpleState='inactive' ;;
 		'failed') simpleState='failed' ;;
 	esac
+
+	# Map the multiple UnitFileState values to a simplified set for testing.
+	case "${unitInfo['UnitFileState']}" in
+		'enabled'|'linked') simpleUnitFileState='enabled' ;;
+		'enabled<-runtime'|'linked-runtime'|'masked'|'masked-runtime'|'disabled') simpleUnitFileState='disabled' ;;
+		'static') simpleUnitFileState='static' ;;
+		'invalid') simpleUnitFileState='invalid' ;;
+	esac
 	
 	local remarks=()
 
@@ -46,7 +54,7 @@ function CheckState () {
 	# If this unit was enabled but is not active and the ConflictedBy value is set we check if any of the 
 	# conflicting units is running. If that's the case the conflicted variable is set.
 	conflicted=0
-	if [ "${simpleState}" == 'inactive' ] && [ "${unitInfo['UnitFileState']}" == 'enabled' ] && [ -n "${unitInfo['ConflictedBy']}" ]; then
+	if [ "${simpleState}" == 'inactive' ] && [ "${simpleUnitFileState}" == 'enabled' ] && [ -n "${unitInfo['ConflictedBy']}" ]; then
 		while IFS="" read -r -s -d" " conflict; do
 			if systemctl -q is-active "${conflict}"; then
 				conflicted=1
@@ -55,9 +63,9 @@ function CheckState () {
 		done <<< "${unitInfo['ConflictedBy']} " # Mind the space at the end of this string!
 	fi
 
-	case "${unitInfo['UnitFileState']}" in
+	case "${simpleUnitFileState}" in
 		'enabled')
-			[ "${unitInfo['UnitFileState']}" == "${unitInfo['UnitFilePreset']}" ] || remarks+=("I: Unit is enabled but preset wants it to be ${unitInfo['UnitFilePreset']}.:Create a preset file in [[/etc/systemd/system-preset/]] containing [[enable ${id}]] to change the preset to enabled or disable the unit via [[systemctl disable ${id}]]. For more information about presets use [[man systemd.preset]].")
+			[ "${simpleUnitFileState}" == "${unitInfo['UnitFilePreset']}" ] || remarks+=("I: Unit is enabled but preset wants it to be ${unitInfo['UnitFilePreset']}.:Create a preset file in [[/etc/systemd/system-preset/]] containing [[enable ${id}]] to change the preset to enabled or disable the unit via [[systemctl disable ${id}]]. For more information about presets use [[man systemd.preset]].")
 
 			# If the unit is enabled it should not be inactive. If it's in failed state we've already reported this.
 			# If the unit is conflicted we do not report this because someone wanted the unit to be off now.
@@ -71,7 +79,7 @@ function CheckState () {
 			fi
 			;;
 		'disabled')
-			[ "${unitInfo['UnitFileState']}" == "${unitInfo['UnitFilePreset']}" ] || remarks+=("I: Unit is disabled but preset wants it to be $preset.:Create a preset file in [[/etc/systemd/system-preset/]] containing [[disable ${id}]] to change the preset to disabled or enable the unit via [[systemctl enable ${id}]]. For more information about presets use [[man systemd.preset]]..")
+			[ "${simpleUnitFileState}" == "${unitInfo['UnitFilePreset']}" ] || remarks+=("I: Unit is disabled but preset wants it to be $preset.:Create a preset file in [[/etc/systemd/system-preset/]] containing [[disable ${id}]] to change the preset to disabled or enable the unit via [[systemctl enable ${id}]]. For more information about presets use [[man systemd.preset]]..")
 
 			# If the unit is disabled it should be inactive as long as it's not triggered by another unit or by dbus
 			# For the dbus units we should check that there is really dbus activation registered for this unit. But communicating
