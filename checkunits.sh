@@ -125,7 +125,7 @@ while IFS="=" read -r key value; do
 	else
 		unitInfo["${key}"]="${value}"
 	fi
-done < <(systemctl show -p Id -p Type -p NRestarts -p RemainAfterExit -p UnitFileState -p UnitFilePreset -p ActiveState -p TriggeredBy -p ConflictedBy -p SourcePath '*')
+done < <(systemctl show -p Id -p Type -p NRestarts -p RemainAfterExit -p UnitFileState -p UnitFilePreset -p ActiveState -p TriggeredBy -p ConflictedBy -p SourcePath -p LoadState '*')
 
 CheckState; ((messageCount+=$?))
 
