@@ -36,7 +36,7 @@ function CheckState () {
 	# Map the multiple UnitFileState values to a simplified set for testing.
 	case "${unitInfo['UnitFileState']}" in
 		'enabled'|'linked') simpleUnitFileState='enabled' ;;
-		'enabled<-runtime'|'linked-runtime'|'masked'|'masked-runtime'|'disabled') simpleUnitFileState='disabled' ;;
+		'enabled-runtime'|'linked-runtime'|'masked'|'masked-runtime'|'disabled') simpleUnitFileState='disabled' ;;
 		'static') simpleUnitFileState='static' ;;
 		'invalid') simpleUnitFileState='invalid' ;;
 	esac
@@ -44,8 +44,8 @@ function CheckState () {
 	local remarks=()
 
 	# Check for failed and restarted units.
-	[ "${simpleState}" == 'failed' ] && remarks+=("E: Unit is is failed state.:Check why it has failed using [[systemctl status ${id}]] or use [[journalctl -le -u ${id}]] to view the log. If everything is ok but you don't want to restart the unit, you can use [[systemctl reset-failed ${id}]] to reset the failed state.")
-	[ -n "${unitInfo['NRestarts']}" ] && [ "${unitInfo['NRestarts']}" -gt 0 ] && remarks+=("W: The Unit ${id} was automatically restarted $restarts times.:Maybe there is something wrong with it. You should check the logs via [[journalctl -le -u ${id}]].")
+	[ "${simpleState}" == 'failed' ] && remarks+=("E: Unit is is failed state.:Check why it has failed using [[systemctl status ${unitInfo['Id']}]] or use [[journalctl -le -u ${unitInfo['Id']}]] to view the log. If everything is ok but you don't want to restart the unit, you can use [[systemctl reset-failed ${unitInfo['Id']}]] to reset the failed state.")
+	[ -n "${unitInfo['NRestarts']}" ] && [ "${unitInfo['NRestarts']}" -gt 0 ] && remarks+=("W: The Unit ${unitInfo['Id']} was automatically restarted $restarts times.:Maybe there is something wrong with it. You should check the logs via [[journalctl -le -u ${unitInfo['Id']}]].")
 
 	# If the service-unit has a sourcePath set that points to /etc/init.d it's a generated legacy unit.
 	# THe Unit file state "generated" can not be used here because it's currently not documented.
@@ -65,7 +65,7 @@ function CheckState () {
 
 	case "${simpleUnitFileState}" in
 		'enabled')
-			[ "${simpleUnitFileState}" == "${unitInfo['UnitFilePreset']}" ] || remarks+=("I: Unit is enabled but preset wants it to be ${unitInfo['UnitFilePreset']}.:Create a preset file in [[/etc/systemd/system-preset/]] containing [[enable ${id}]] to change the preset to enabled or disable the unit via [[systemctl disable ${id}]]. For more information about presets use [[man systemd.preset]].")
+			[ "${simpleUnitFileState}" == "${unitInfo['UnitFilePreset']}" ] || remarks+=("I: Unit is enabled but preset wants it to be ${unitInfo['UnitFilePreset']}.:Create a preset file in [[/etc/systemd/system-preset/]] containing [[enable ${unitInfo['Id']}]] to change the preset to enabled or disable the unit via [[systemctl disable ${unitInfo['Id']}]]. For more information about presets use [[man systemd.preset]].")
 
 			# If the unit is enabled it should not be inactive. If it's in failed state we've already reported this.
 			# If the unit is conflicted we do not report this because someone wanted the unit to be off now.
@@ -74,23 +74,23 @@ function CheckState () {
 				# "failed" we wouldn't be here) then everything went as planned and we can ignore the inactive unit.
 				# The condition is a little awkward because it's negated.
 				if [ "${unitInfo['Type']}" != 'oneshot' ] || [ "${unitInfo['RemainAfterExit']}" != 'no' ]; then
-					remarks+=("W: Unit is enabled but not active.:Use [[systemctl start ${id}]] to start the unit.")
+					remarks+=("W: Unit is enabled but not active.:Use [[systemctl start ${unitInfo['Id']}]] to start the unit.")
 				fi
 			fi
 			;;
 		'disabled')
-			[ "${simpleUnitFileState}" == "${unitInfo['UnitFilePreset']}" ] || remarks+=("I: Unit is disabled but preset wants it to be $preset.:Create a preset file in [[/etc/systemd/system-preset/]] containing [[disable ${id}]] to change the preset to disabled or enable the unit via [[systemctl enable ${id}]]. For more information about presets use [[man systemd.preset]]..")
+			[ "${simpleUnitFileState}" == "${unitInfo['UnitFilePreset']}" ] || remarks+=("I: Unit is disabled but preset wants it to be ${unitInfo['UnitFilePreset']}.:Create a preset file in [[/etc/systemd/system-preset/]] containing [[disable ${unitInfo['Id']}]] to change the preset to disabled or enable the unit via [[systemctl enable ${unitInfo['Id']}]]. For more information about presets use [[man systemd.preset]]..")
 
 			# If the unit is disabled it should be inactive as long as it's not triggered by another unit or by dbus
 			# For the dbus units we should check that there is really dbus activation registered for this unit. But communicating
 			# with the dbus service and checking the configuration is beyond the scope this script.
-			[ "${simpleState}" == 'active' ] && [ "${unitInfo['TriggeredBy']}" == '' ] && [ "${unitInfo['Type']}" != 'dbus' ] && remarks+=("W: Unit is disabled but $activeState.:Use [[systemctl stop ${id}]] to stop the unit.")
+			[ "${simpleState}" == 'active' ] && [ "${unitInfo['TriggeredBy']}" == '' ] && [ "${unitInfo['Type']}" != 'dbus' ] && remarks+=("W: Unit is disabled but ${unitInfo['ActiveState']}.:Use [[systemctl stop ${unitInfo['Id']}]] to stop the unit.")
 			;;
 	esac
 
 	# End of checks. Start of output routine
 	if [ ${#remarks[@]} -gt 0 ]; then
-		echo "Remarks for unit ${fontBold}${id}${fontReset}:"
+		echo "Remarks for unit ${fontBold}${unitInfo['Id']}${fontReset}:"
 		for remark in "${remarks[@]}"; do
 			IFS=":" read -r severity msg suggestion <<< "${remark}"
 			case "${severity}" in
