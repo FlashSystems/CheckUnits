@@ -37,8 +37,8 @@ function CheckState () {
 	case "${unitInfo['UnitFileState']}" in
 		'enabled'|'linked') simpleUnitFileState='enabled' ;;
 		'enabled-runtime'|'linked-runtime'|'masked'|'masked-runtime'|'disabled') simpleUnitFileState='disabled' ;;
-		'static') simpleUnitFileState='static' ;;
-		'invalid') simpleUnitFileState='invalid' ;;
+		# Catch "invalid", "static" and empty ("")
+		*) simpleUnitFileState="${unitInfo['UnitFileState']}"
 	esac
 	
 	local remarks=()
@@ -85,6 +85,10 @@ function CheckState () {
 			# For the dbus units we should check that there is really dbus activation registered for this unit. But communicating
 			# with the dbus service and checking the configuration is beyond the scope this script.
 			[ "${simpleState}" == 'active' ] && [ "${unitInfo['TriggeredBy']}" == '' ] && [ "${unitInfo['Type']}" != 'dbus' ] && remarks+=("W: Unit is disabled but ${unitInfo['ActiveState']}.:Use [[systemctl stop ${unitInfo['Id']}]] to stop the unit.")
+			;;
+		'invalid')
+			;;
+		'static')
 			;;
 	esac
 
