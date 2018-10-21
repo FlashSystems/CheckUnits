@@ -137,13 +137,17 @@ echo "CheckServices v${VERSION} (${COMMIT:5:10})..."
 declare -a ignoreUnits
 checkPresets=0
 showConflicted=0
-while getopts "pci:" opt; do
+silent=0
+while getopts "pcsi:" opt; do
 	case "$opt" in
 		'p')
 			checkPresets=1
 			;;
 		'c')
 			showConflicted=1;
+			;;
+		's')
+			silent=1
 			;;
 		'i')
 			ignoreUnits+=("$OPTARG")
@@ -172,5 +176,5 @@ CheckState; ((messageCount+=$?))
 if [ $messageCount -gt 0 ]; then
 	echo -e "${fontDone}Check completed. ${fontDoneRemarks}$messageCount remarks.${fontReset}"
 else
-	echo -e "${fontDone}Check completed without remarks.${fontReset} This does not mean everything will work as expected ;)"
+	[ ${silent} -eq 0 ] && echo -e "${fontDone}Check completed without remarks.${fontReset} This does not mean everything will work as expected ;)"
 fi
