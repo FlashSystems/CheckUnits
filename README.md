@@ -3,10 +3,25 @@ This shell script checks the systemd configuration of a modern Linux system and 
 
 ## Dependencies
 This script does not have any dependencies besides `bash` and `systemd`.
-It was tests with bash 4.4 and systemd 239 but should work with older versions as well.
+It was tested with bash 4.4 and systemd 239 but should work with older versions as well.
 
 ## Usage
 Just clone or export the repository and call `checkunits.sh`.
+
+## Command line options
+`checkunits.sh` supports some command line options:
+
+### -p
+Report if the enabled/disabled state of the unit does not equal the preset state.
+
+### -c
+Report units that where stopped because they are in conflict with an other unit.
+
+### -i <Unit>
+Ignores the given unit. This option can be passed multiple times to ignore multiple units.
+
+### -s
+Disables the summary output if no remarks where shown.
 
 # How it works
 The script does some tests to make sure your current system state matches the systemd configuration. For all non transient systemd units the following checks are performed:
@@ -14,7 +29,8 @@ The script does some tests to make sure your current system state matches the sy
 * If the unit has failed an error is reported.
 * If the unit was automatically restarted a warning is reported.
 * If the unit was created by the systemd-sysv-generator to start a legacy init-Script an information is reported.
-* If the enabled/disabled state of the unit does not equal the preset state an information is reported.
+* If the unit was stopped because it conflicted with an other unit an information is reported. (Only if `-c` is used)
+* If the enabled/disabled state of the unit does not equal the preset state an information is reported. (Only if `-p` is used.)
 * If the unit is enabled but not active a warning is reported unless...
   * the unit is a one-shot unit and RemainAfterExit is set to "no".
 * If the unit is disabled but active a warning is reported unless...
