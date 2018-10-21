@@ -22,6 +22,10 @@ function CheckState () {
 	[ "${unitInfo['UnitFileState']}" == 'transient' ] && return 0
 	[ "${unitInfo['LoadState']}" == 'not-found' ] && return 0
 
+	for ignoredUnit in "${ignoreUnits[@]}"; do
+		[ "${ignoredUnit}" == "${unitInfo['Id']}" ] && return 0
+	done
+
 	# Determin the class of the unit from the extension of the name
 	unitClass="${unitInfo['Id']##*.}"
 
@@ -130,15 +134,19 @@ function CheckState () {
 echo "CheckServices v${VERSION} (${COMMIT:5:10})..."
 
 # Parse command line argument
+declare -a ignoreUnits
 checkPresets=0
 showConflicted=0
-while getopts "pc" opt; do
+while getopts "pci:" opt; do
 	case "$opt" in
 		'p')
 			checkPresets=1
 			;;
 		'c')
 			showConflicted=1;
+			;;
+		'i')
+			ignoreUnits+=("$OPTARG")
 			;;
 		'?')
 			exit 1
