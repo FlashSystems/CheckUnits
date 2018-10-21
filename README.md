@@ -17,7 +17,7 @@ Report if the enabled/disabled state of the unit does not equal the preset state
 ### -c
 Report units that where stopped because they are in conflict with an other unit.
 
-### -i <Unit>
+### -i *Unit*
 Ignores the given unit. This option can be passed multiple times to ignore multiple units.
 
 ### -s
