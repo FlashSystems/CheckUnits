@@ -73,7 +73,7 @@ function CheckState () {
 
 			# If the unit is enabled it should not be inactive. If it's in failed state we've already reported this.
 			# If the unit is conflicted we do not report this because someone wanted the unit to be off now.
-			if [ "${simpleState}" == 'inactive' ] && [ $conflicted -eq 0 ]; then
+			if [ "${simpleState}" == 'inactive' ] && [ ${conflicted} -eq 0 ]; then
 				# If the unit if of type oneshot and ramainAfterExit is no and it exited successfully (because if the simpleState where
 				# "failed" we wouldn't be here) then everything went as planned and we can ignore the inactive unit.
 				# The condition is a little awkward because it's negated.
