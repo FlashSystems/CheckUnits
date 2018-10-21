@@ -58,6 +58,8 @@ function CheckState () {
 		while IFS="" read -r -s -d" " conflict; do
 			if systemctl -q is-active "${conflict}"; then
 				conflicted=1
+
+				[ ${showConflicted} -gt 0 ] && remarks+=("I: Unit is stopped due to a conflict with unit ${conflict}.")
 				break
 			fi
 		done <<< "${unitInfo['ConflictedBy']} " # Mind the space at the end of this string!
@@ -129,10 +131,14 @@ echo "CheckServices v${VERSION} (${COMMIT:5:10})..."
 
 # Parse command line argument
 checkPresets=0
-while getopts "ph" opt; do
+showConflicted=0
+while getopts "pc" opt; do
 	case "$opt" in
 		'p')
 			checkPresets=1
+			;;
+		'c')
+			showConflicted=1;
 			;;
 		'?')
 			exit 1
