@@ -144,7 +144,7 @@ while getopts "pcsi:" opt; do
 			checkPresets=1
 			;;
 		'c')
-			showConflicted=1;
+			showConflicted=1
 			;;
 		's')
 			silent=1
