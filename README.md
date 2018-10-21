@@ -30,7 +30,7 @@ The script does some tests to make sure your current system state matches the sy
 * If the unit was automatically restarted a warning is reported.
 * If the unit was created by the systemd-sysv-generator to start a legacy init-Script an information is reported.
 * If the unit was stopped because it conflicted with an other unit an information is reported. (Only if `-c` is used)
-* If the enabled/disabled state of the unit does not equal the preset state an information is reported. (Only if `-p` is used.)
+* If the enabled/disabled state of the unit does not equal the preset state an information is reported. (Only if `-p` is used)
 * If the unit is enabled but not active a warning is reported unless...
   * the unit is a one-shot unit and RemainAfterExit is set to "no".
 * If the unit is disabled but active a warning is reported unless...
