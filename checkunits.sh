@@ -5,6 +5,12 @@
 COMMIT='$Id$'
 VERSION="0.4"
 
+# Check the shell version
+if [ -z "${BASH_VERSINFO}" ] || [ "${BASH_VERSINFO[0]}" != "4" ]; then
+	echo "Bash version 4 required."
+	exit 2
+fi
+
 # Output font and color definitions
 fontBold=$(tput -S <<< $'smul')
 fontInfo=$(tput -S <<< $'setaf black\nsetab 6')
