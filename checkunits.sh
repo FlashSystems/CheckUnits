@@ -103,7 +103,7 @@ function CheckState () {
 			# If the unit is disabled it should be inactive as long as it's not triggered by another unit or by dbus
 			# For the dbus units we should check that there is really dbus activation registered for this unit. But communicating
 			# with the dbus service and checking the configuration is beyond the scope this script.
-			[ "${simpleState}" == 'active' ] && [ "${unitInfo['TriggeredBy']}" == '' ] && [ "${unitInfo['Type']}" != 'dbus' ] && remarks+=("W: Unit is disabled but ${unitInfo['ActiveState']}.:Use [[systemctl stop ${unitInfo['Id']}]] to stop the unit.")
+			[ "${simpleState}" == 'active' ] && [ "${unitInfo['TriggeredBy']}" == '' ] && [ "${unitInfo['Type']}" != 'dbus' ] && remarks+=("W: Unit is disabled but ${unitInfo['ActiveState']}.:If the unit should not be active, use [[systemctl stop ${unitInfo['Id']}]] to stop the unit. If the start of this unit was intentional, use [[systemctl enable ${unitInfo['Id']}]] to enable it permanently.")
 			;;
 		'invalid')
 			;;
