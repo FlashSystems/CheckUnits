@@ -55,7 +55,7 @@ function CheckState () {
 
 	# Check for failed and restarted units.
 	[ "${simpleState}" == 'failed' ] && remarks+=("E: Unit is is failed state.:Check why it has failed using [[systemctl status ${unitInfo['Id']}]] or use [[journalctl -le -u ${unitInfo['Id']}]] to view the log. If everything is ok but you don't want to restart the unit, you can use [[systemctl reset-failed ${unitInfo['Id']}]] to reset the failed state.")
-	[ -n "${unitInfo['NRestarts']}" ] && [ "${unitInfo['NRestarts']}" -gt 0 ] && remarks+=("W: The Unit ${unitInfo['Id']} was automatically restarted ${unitInfo['NRestarts']} times.:Maybe there is something wrong with it. You should check the logs via [[journalctl -le -u ${unitInfo['Id']}]].")
+	[ -n "${unitInfo['NRestarts']}" ] && [ "${unitInfo['NRestarts']}" -gt 0 ] && remarks+=("W: The Unit ${unitInfo['Id']} was automatically restarted ${unitInfo['NRestarts']} times.:Maybe there is something wrong with it. You should check the logs via [[journalctl -le -u ${unitInfo['Id']}]]. If the unit is stable now, you can reset the restart counter using [[systemctl reset-failed ${unitInfo['Id']}]].")
 
 	# If the service-unit has a sourcePath set that points to /etc/init.d it's a generated legacy unit.
 	# THe Unit file state "generated" can not be used here because it's currently not documented.
