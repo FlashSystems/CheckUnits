@@ -127,10 +127,21 @@ function CheckState () {
 				[ "${simpleUnitFileState}" == "${unitInfo['UnitFilePreset']}" ] || remarks+=("I: Unit is disabled but preset wants it to be ${unitInfo['UnitFilePreset']}.:Create a preset file in [[/etc/systemd/system-preset/]] containing [[disable ${unitInfo['Id']}]] to change the preset to disabled or enable the unit via [[systemctl enable ${unitInfo['Id']}]]. For more information about presets use [[man systemd.preset]]..")
 			fi
 
+			# Check if any units that want this unit are active. If that's the case this unit may
+			# be active because it was started by another unit.
+			local activelyWanted=0
+			if [ -n "${unitInfo['WantedBy']}" ]; then
+				for service in ${unitInfo['WantedBy']}; do
+					if systemctl is-active --quiet "${service}"; then
+						activelyWanted=1
+					fi
+				done
+			fi
+
 			# If the unit is disabled it should be inactive as long as it's not triggered by another unit or by dbus
 			# For the dbus units we should check that there is really dbus activation registered for this unit. But communicating
 			# with the dbus service and checking the configuration is beyond the scope this script.
-			[ "${simpleState}" == 'active' ] && [ "${unitInfo['TriggeredBy']}" == '' ] && [ "${unitInfo['Type']}" != 'dbus' ] && remarks+=("W: Unit is disabled but ${unitInfo['ActiveState']}.:If the unit should not be active, use [[systemctl stop ${unitInfo['Id']}]] to stop the unit. If the start of this unit was intentional, use [[systemctl enable ${unitInfo['Id']}]] to enable it permanently.")
+			[ "${simpleState}" == 'active' ] && [ "${unitInfo['TriggeredBy']}" == '' ] && [ "${activelyWanted}" -eq 0 ] && [ "${unitInfo['Type']}" != 'dbus' ] && remarks+=("W: Unit is disabled but ${unitInfo['ActiveState']}.:If the unit should not be active, use [[systemctl stop ${unitInfo['Id']}]] to stop the unit. If the start of this unit was intentional, use [[systemctl enable ${unitInfo['Id']}]] to enable it permanently.")
 			;;
 		'invalid')
 			;;
@@ -206,7 +217,7 @@ while IFS="=" read -r key value; do
 	else
 		unitInfo["${key}"]="${value}"
 	fi
-done < <(systemctl show -p Id -p Type -p NRestarts -p RemainAfterExit -p UnitFileState -p UnitFilePreset -p ActiveState -p TriggeredBy -p ConflictedBy -p SourcePath -p LoadState '*')
+done < <(systemctl show -p Id -p Type -p NRestarts -p RemainAfterExit -p UnitFileState -p UnitFilePreset -p ActiveState -p TriggeredBy -p WantedBy -p ConflictedBy -p SourcePath -p LoadState '*')
 
 CheckState; ((messageCount+=$?))
 
