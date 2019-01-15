@@ -3,7 +3,7 @@
 # Version and Commit ID
 # shellcheck disable=SC2016
 COMMIT='$Id$'
-VERSION="0.4"
+VERSION="0.5"
 
 # Check the shell version
 if [ -z "${BASH_VERSINFO}" ] || [ ${BASH_VERSINFO[0]} -lt 4 ]; then
@@ -20,6 +20,33 @@ fontCode=$(tput -S <<< $'bold')
 fontReset=$(tput -S <<< $'sgr0')
 fontDone=$(tput -S <<< $'setaf 2\nbold')
 fontDoneRemarks=$(tput -S <<< $'setaf 3\nbold')
+
+function Usage () {
+	# Use fmt to format the output. Prevent lines from being joined
+	# together to allow better formatting.
+	fmt -t -s <<- END
+		usage:
+		       checkunits.sh [-p] [-c] [-s] [-i <Unit>] [-h]
+
+		This shell script checks the systemd configuration of a modern Linux system and makes suggestions to optimize the use of systemd.
+
+		It knows the following options:
+	END
+	# This lines might be joined to create a propper parameter list.
+	fmt -t <<- END
+		  -p
+		     Report if the enabled/disabled state of the unit does not equal the preset state.
+		  -c
+		     Report units that where stopped because they are in conflict with an other unit.
+		  -i
+		     Ignores the given unit. This option can be passed multiple times to ignore multiple units.
+		  -s
+		     Disables the summary output if no remarks where shown.
+		  -h
+		     Display usage info.
+
+	END
+}
 
 # Checks the state of the unit file by using a bunch of global variables.
 # These checks are based on the information in https://www.freedesktop.org/wiki/Software/systemd/dbus/
@@ -144,7 +171,7 @@ declare -a ignoreUnits
 checkPresets=0
 showConflicted=0
 silent=0
-while getopts "pcsi:" opt; do
+while getopts "pcshi:" opt; do
 	case "$opt" in
 		'p')
 			checkPresets=1
@@ -157,6 +184,10 @@ while getopts "pcsi:" opt; do
 			;;
 		'i')
 			ignoreUnits+=("$OPTARG")
+			;;
+		'h')
+			Usage
+			exit 0
 			;;
 		'?')
 			exit 1

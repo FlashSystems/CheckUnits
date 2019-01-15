@@ -23,6 +23,9 @@ Ignores the given unit. This option can be passed multiple times to ignore multi
 ### -s
 Disables the summary output if no remarks where shown.
 
+### -h
+Display usage info.
+
 # How it works
 The script does some tests to make sure your current system state matches the systemd configuration. For all non transient systemd units the following checks are performed:
 
