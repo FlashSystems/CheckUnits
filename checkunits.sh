@@ -6,7 +6,7 @@ COMMIT='$Id$'
 VERSION="0.5"
 
 # Check the shell version
-if [ -z "${BASH_VERSINFO}" ] || [ ${BASH_VERSINFO[0]} -lt 4 ]; then
+if [ -z "${BASH_VERSINFO[*]}" ] || [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
 	echo "At least Bash version 4 required."
 	exit 2
 fi
@@ -96,7 +96,7 @@ function CheckState () {
 			if systemctl -q is-active "${conflict}"; then
 				conflicted=1
 
-				[ ${showConflicted} -gt 0 ] && remarks+=("I: Unit is stopped due to a conflict with unit ${conflict}.")
+				[ "${showConflicted}" -gt 0 ] && remarks+=("I: Unit is stopped due to a conflict with unit ${conflict}.")
 				break
 			fi
 		done <<< "${unitInfo['ConflictedBy']} " # Mind the space at the end of this string!
@@ -106,7 +106,7 @@ function CheckState () {
 		'enabled')
 			# Only check the preset if the unit this was enabled and
 			# if the unit is not masked (because presets do not make sense for masked units.)
-			if [ ${checkPresets} -gt 0 ] && [ "${unitInfo['LoadState']}" != 'masked' ]; then
+			if [ "${checkPresets}" -gt 0 ] && [ "${unitInfo['LoadState']}" != 'masked' ]; then
 				[ "${simpleUnitFileState}" == "${unitInfo['UnitFilePreset']}" ] || remarks+=("I: Unit is enabled but preset wants it to be ${unitInfo['UnitFilePreset']}.:Create a preset file in [[/etc/systemd/system-preset/]] containing [[enable ${unitInfo['Id']}]] to change the preset to enabled or disable the unit via [[systemctl disable ${unitInfo['Id']}]]. For more information about presets use [[man systemd.preset]].")
 			fi
 
@@ -123,7 +123,7 @@ function CheckState () {
 			;;
 		'disabled')
 			# See enabled
-			if [ ${checkPresets} -gt 0 ] && [ "${unitInfo['LoadState']}" != 'masked' ]; then
+			if [ "${checkPresets}" -gt 0 ] && [ "${unitInfo['LoadState']}" != 'masked' ]; then
 				[ "${simpleUnitFileState}" == "${unitInfo['UnitFilePreset']}" ] || remarks+=("I: Unit is disabled but preset wants it to be ${unitInfo['UnitFilePreset']}.:Create a preset file in [[/etc/systemd/system-preset/]] containing [[disable ${unitInfo['Id']}]] to change the preset to disabled or enable the unit via [[systemctl enable ${unitInfo['Id']}]]. For more information about presets use [[man systemd.preset]]..")
 			fi
 
@@ -139,7 +139,7 @@ function CheckState () {
 	esac
 
 	# End of checks. Start of output routine
-	if [ ${#remarks[@]} -gt 0 ]; then
+	if [ "${#remarks[@]}" -gt 0 ]; then
 		echo "Remarks for unit ${fontBold}${unitInfo['Id']}${fontReset}:"
 		for remark in "${remarks[@]}"; do
 			IFS=":" read -r severity msg suggestion <<< "${remark}"
@@ -210,8 +210,8 @@ done < <(systemctl show -p Id -p Type -p NRestarts -p RemainAfterExit -p UnitFil
 
 CheckState; ((messageCount+=$?))
 
-if [ $messageCount -gt 0 ]; then
+if [ "$messageCount" -gt 0 ]; then
 	echo -e "${fontDone}Check completed. ${fontDoneRemarks}$messageCount remarks.${fontReset}"
 else
-	[ ${silent} -eq 0 ] && echo -e "${fontDone}Check completed without remarks.${fontReset} This does not mean everything will work as expected ;)"
+	[ "${silent}" -eq 0 ] && echo -e "${fontDone}Check completed without remarks.${fontReset} This does not mean everything will work as expected ;)"
 fi
