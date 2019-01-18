@@ -38,6 +38,7 @@ The script does some tests to make sure your current system state matches the sy
   * the unit is a one-shot unit and RemainAfterExit is set to "no".
 * If the unit is disabled but active a warning is reported unless...
   * the unit is triggered by another unit or
+  * the unit is wanted by another active unti or
   * the unit is a dbus-unit because these units can be triggered by dbus activation.
 
 # Known issues
