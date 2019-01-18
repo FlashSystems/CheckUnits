@@ -35,7 +35,8 @@ The script does some tests to make sure your current system state matches the sy
 * If the unit was stopped because it conflicted with an other unit an information is reported. (Only if `-c` is used)
 * If the enabled/disabled state of the unit does not equal the preset state an information is reported. (Only if `-p` is used)
 * If the unit is enabled but not active a warning is reported unless...
-  * the unit is a one-shot unit and RemainAfterExit is set to "no".
+  * the unit is a one-shot unit and RemainAfterExit is set to "no" or
+	* it was disabled by a condition.
 * If the unit is disabled but active a warning is reported unless...
   * the unit is triggered by another unit or
   * the unit is wanted by another active unti or
