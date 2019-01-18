@@ -113,11 +113,14 @@ function CheckState () {
 			# If the unit is enabled it should not be inactive. If it's in failed state we've already reported this.
 			# If the unit is conflicted we do not report this because someone wanted the unit to be off now.
 			if [ "${simpleState}" == 'inactive' ] && [ ${conflicted} -eq 0 ]; then
-				# If the unit if of type oneshot and ramainAfterExit is no and it exited successfully (because if the simpleState where
-				# "failed" we wouldn't be here) then everything went as planned and we can ignore the inactive unit.
-				# The condition is a little awkward because it's negated.
-				if [ "${unitInfo['Type']}" != 'oneshot' ] || [ "${unitInfo['RemainAfterExit']}" != 'no' ]; then
-					remarks+=("W: Unit is enabled but not active.:Use [[systemctl start ${unitInfo['Id']}]] to start the unit.")
+				# Check if the unit was disabled by a condition. Because that would be ok.
+				if [ -z "${unitInfo['ConditionTimestamp']}" ] || [ "${unitInfo['ConditionResult']}" != 'no' ]; then
+					# If the unit if of type oneshot and ramainAfterExit is no and it exited successfully (because if the simpleState where
+					# "failed" we wouldn't be here) then everything went as planned and we can ignore the inactive unit.
+					# The condition is a little awkward because it's negated.
+					if [ "${unitInfo['Type']}" != 'oneshot' ] || [ "${unitInfo['RemainAfterExit']}" != 'no' ]; then
+						remarks+=("W: Unit is enabled but not active.:Use [[systemctl start ${unitInfo['Id']}]] to start the unit.")
+					fi
 				fi
 			fi
 			;;
@@ -217,7 +220,7 @@ while IFS="=" read -r key value; do
 	else
 		unitInfo["${key}"]="${value}"
 	fi
-done < <(systemctl show -p Id -p Type -p NRestarts -p RemainAfterExit -p UnitFileState -p UnitFilePreset -p ActiveState -p TriggeredBy -p WantedBy -p ConflictedBy -p SourcePath -p LoadState '*')
+done < <(systemctl show -p Id -p Type -p NRestarts -p RemainAfterExit -p UnitFileState -p UnitFilePreset -p ActiveState -p TriggeredBy -p WantedBy -p ConflictedBy -p SourcePath -p LoadState -p ConditionResult -p ConditionTimestamp '*')
 
 CheckState; ((messageCount+=$?))
 
