@@ -109,7 +109,7 @@ function CheckState () {
 			# Only check the preset if the unit this was enabled and
 			# if the unit is not masked (because presets do not make sense for masked units.)
 			if [ "${checkPresets}" -gt 0 ] && [ "${unitInfo['LoadState']}" != 'masked' ]; then
-				[ "${simpleUnitFileState}" == "${unitInfo['UnitFilePreset']}" ] || remarks+=("I: Unit is enabled but preset wants it to be ${unitInfo['UnitFilePreset']}.:Create a preset file in [[/etc/systemd/system-preset/]] containing [[enable ${unitInfo['Id']}]] to change the preset to enabled or disable the unit via [[systemctl disable ${unitInfo['Id']}]]. For more information about presets use [[man systemd.preset]].")
+				[ "${simpleUnitFileState}" == "${unitInfo['UnitFilePreset']}" ] || remarks+=("W: Unit is enabled but preset wants it to be ${unitInfo['UnitFilePreset']}.:Create a preset file in [[/etc/systemd/system-preset/]] containing [[enable ${unitInfo['Id']}]] to change the preset to enabled or disable the unit via [[systemctl disable ${unitInfo['Id']}]]. For more information about presets use [[man systemd.preset]].")
 			fi
 
 			# If the unit is enabled it should not be inactive. If it's in failed state we've already reported this.
@@ -131,7 +131,7 @@ function CheckState () {
 		'disabled')
 			# See enabled
 			if [ "${checkPresets}" -gt 0 ] && [ "${unitInfo['LoadState']}" != 'masked' ]; then
-				[ "${simpleUnitFileState}" == "${unitInfo['UnitFilePreset']}" ] || remarks+=("I: Unit is disabled but preset wants it to be ${unitInfo['UnitFilePreset']}.:Create a preset file in [[/etc/systemd/system-preset/]] containing [[disable ${unitInfo['Id']}]] to change the preset to disabled or enable the unit via [[systemctl enable ${unitInfo['Id']}]]. For more information about presets use [[man systemd.preset]]..")
+				[ "${simpleUnitFileState}" == "${unitInfo['UnitFilePreset']}" ] || remarks+=("W: Unit is disabled but preset wants it to be ${unitInfo['UnitFilePreset']}.:Create a preset file in [[/etc/systemd/system-preset/]] containing [[disable ${unitInfo['Id']}]] to change the preset to disabled or enable the unit via [[systemctl enable ${unitInfo['Id']}]]. For more information about presets use [[man systemd.preset]]..")
 			fi
 
 			# If this unit is active, check if any units that want this unit are active.

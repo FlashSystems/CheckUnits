@@ -12,7 +12,7 @@ Just clone or export the repository and call `checkunits.sh`.
 `checkunits.sh` supports some command line options:
 
 ### -p
-Report if the enabled/disabled state of the unit does not equal the preset state.
+Shows a warning if the enabled/disabled state of the unit does not equal the preset state.
 
 ### -c
 Report units that where stopped because they are in conflict with an other unit.
