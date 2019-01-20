@@ -3,7 +3,7 @@
 # Version and Commit ID
 # shellcheck disable=SC2016
 COMMIT='$Id$'
-VERSION="0.6"
+VERSION="0.7"
 
 # Check the shell version
 if [ -z "${BASH_VERSINFO[*]}" ] || [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
