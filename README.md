@@ -23,6 +23,9 @@ Ignores the given unit. This option can be passed multiple times to ignore multi
 ### -s
 Disables the summary output if no remarks where shown.
 
+### -v
+Verbose mode shows some additional information messages that are usefull to clearify why specific warnings or errors are not shown. For example: An information message is shown if a unit is anabled but not running because it was disabled by a condition. These warnings are normally suppressed because conditions are legitimated to stop a unit from running. 
+
 ### -h
 Display usage info.
 
