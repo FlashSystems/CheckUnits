@@ -124,7 +124,7 @@ function CheckState () {
 						remarks+=("W: Unit is enabled but not active.:Use [[systemctl start ${unitInfo['Id']}]] to start the unit.")
 					fi
 				else
-					[ "${verbose}" -gt 0 ] && remarks+=("I: Unit ${unitInfo['Id']} is disabled by a failed condition. Use [[systemctl cat ${unitInfo['Id']}]] to show the unit file and check for unsatisified conditions.")
+					[ "${verbose}" -gt 0 ] && remarks+=("I: Unit ${unitInfo['Id']} is disabled by a failed condition.:Use [[systemctl cat ${unitInfo['Id']}]] to show the unit file and check for unsatisified conditions.")
 				fi
 			fi
 			;;
