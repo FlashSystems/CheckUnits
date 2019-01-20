@@ -3,7 +3,15 @@ This shell script checks the systemd configuration of a modern Linux system and 
 
 ## Dependencies
 This script does not have any dependencies besides `bash` and `systemd`.
-It was tested with bash 4.4 and systemd 239 but should work with older versions as well.
+It was tested with the following `bash` versions:
+* 4.4
+* 5.0
+
+And the following `systemd` versions:
+* 239
+* 240
+
+The script should work with newer versions of `bash` and `systemd` also. If not, please file a bug.
 
 ## Usage
 Just clone or export the repository and call `checkunits.sh`.
