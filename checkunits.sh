@@ -26,7 +26,7 @@ function Usage () {
 	# together to allow better formatting.
 	fmt -t -s <<- END
 		usage:
-		       checkunits.sh [-p] [-c] [-s] [-i <Unit>] [-h]
+		       checkunits.sh [-p] [-c] [-s] [-v] [-i <Unit>] [-h]
 
 		This shell script checks the systemd configuration of a modern Linux system and makes suggestions to optimize the use of systemd.
 
@@ -42,6 +42,8 @@ function Usage () {
 		     Ignores the given unit. This option can be passed multiple times to ignore multiple units.
 		  -s
 		     Disables the summary output if no remarks where shown.
+		  -v
+		     Show additional information massages that are usefull in some cases.
 		  -h
 		     Display usage info.
 
@@ -121,6 +123,8 @@ function CheckState () {
 					if [ "${unitInfo['Type']}" != 'oneshot' ] || [ "${unitInfo['RemainAfterExit']}" != 'no' ]; then
 						remarks+=("W: Unit is enabled but not active.:Use [[systemctl start ${unitInfo['Id']}]] to start the unit.")
 					fi
+				else
+					[ "${verbose}" -gt 0 ] && remarks+=("I: Unit ${unitInfo['Id']} is disabled by a failed condition. Use [[systemctl cat ${unitInfo['Id']}]] to show the unit file and check for unsatisified conditions.")
 				fi
 			fi
 			;;
@@ -130,13 +134,16 @@ function CheckState () {
 				[ "${simpleUnitFileState}" == "${unitInfo['UnitFilePreset']}" ] || remarks+=("I: Unit is disabled but preset wants it to be ${unitInfo['UnitFilePreset']}.:Create a preset file in [[/etc/systemd/system-preset/]] containing [[disable ${unitInfo['Id']}]] to change the preset to disabled or enable the unit via [[systemctl enable ${unitInfo['Id']}]]. For more information about presets use [[man systemd.preset]]..")
 			fi
 
-			# Check if any units that want this unit are active. If that's the case this unit may
-			# be active because it was started by another unit.
+			# If this unit is active, check if any units that want this unit are active.
+			# If that's the case this unit may be active because it was started by another unit.
 			local activelyWanted=0
-			if [ -n "${unitInfo['WantedBy']}" ]; then
+			if [ "${simpleState}" == 'active' ] && [ -n "${unitInfo['WantedBy']}" ]; then
 				for service in ${unitInfo['WantedBy']}; do
 					if systemctl is-active --quiet "${service}"; then
 						activelyWanted=1
+
+						# If we're in verbose mode, list the units wanting this unit.
+						[ "${verbose}" -gt 0 ] && remarks+=("I: Unit ${unitInfo['Id']} is disabled but active because it is wanted by the active unit ${service}.")
 					fi
 				done
 			fi
@@ -185,7 +192,8 @@ declare -a ignoreUnits
 checkPresets=0
 showConflicted=0
 silent=0
-while getopts "pcshi:" opt; do
+verbose=0
+while getopts "pcsvhi:" opt; do
 	case "$opt" in
 		'p')
 			checkPresets=1
@@ -198,6 +206,9 @@ while getopts "pcshi:" opt; do
 			;;
 		'i')
 			ignoreUnits+=("$OPTARG")
+			;;
+		'v')
+			verbose=1
 			;;
 		'h')
 			Usage
