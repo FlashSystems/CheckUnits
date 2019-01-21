@@ -63,7 +63,7 @@ function CheckState () {
 
 	# Check if the unit file of this unit could be found. If that's the case, all other checks make no sense and we only warn about the missing file.
 	if [ "${unitInfo['LoadState']}" == "not-found" ]; then
-		while read -rs -d' ' unitPath; do
+		while IFS='' read -rs -d' ' unitPath; do
 			if [ -d "${unitPath}" ]; then
 				for unitLink in "${unitPath}"/*/"${unitInfo['Id']}"; do
 					[ -r "${unitLink}" ] || remarks+=("E: The symlink for this unit in ${unitLink%/*} is missing its destination unit file.:Maybe you have uninstalled the corresponding application and want to remove the symlink via [[rm ${unitLink}]].")
@@ -105,7 +105,7 @@ function CheckState () {
 		# Units triggered by timer units should be static
 		# Check each trigger if it's a timer
 		triggeredByTimer=0
-		while read -rs -d' ' trigger; do
+		while IFS='' read -rs -d' ' trigger; do
 			[ "${trigger##*.}" == "timer" ] && triggeredByTimer=1 && break
 		done <<< "${unitInfo['TriggeredBy']} " # Mind the space at the end!
 
