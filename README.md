@@ -44,6 +44,7 @@ The script does some tests to make sure your current system state matches the sy
 * If the unit was automatically restarted a warning is reported.
 * If the unit was created by the systemd-sysv-generator to start a legacy init-Script an information is reported.
 * If the unit file could not be found because of a dangling wants or requires symlink an error is reported.
+* If the unit is triggered by a timer unit it should be static.
 * If the unit was stopped because it conflicted with an other unit an information is reported. (Only if `-c` is used)
 * If the enabled/disabled state of the unit does not equal the preset state an information is reported. (Only if `-p` is used)
 * If the unit is enabled but not active a warning is reported unless...
