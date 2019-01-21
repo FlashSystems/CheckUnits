@@ -117,7 +117,7 @@ function CheckState () {
 		# conflicting units is running. If that's the case the conflicted variable is set.
 		conflicted=0
 		if [ "${simpleState}" == 'inactive' ] && [ "${simpleUnitFileState}" == 'enabled' ] && [ -n "${unitInfo['ConflictedBy']}" ]; then
-			while IFS="" read -r -s -d" " conflict; do
+			while IFS='' read -r -s -d' ' conflict; do
 				if systemctl -q is-active "${conflict}"; then
 					conflicted=1
 
