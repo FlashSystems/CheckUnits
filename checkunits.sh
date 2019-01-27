@@ -28,6 +28,8 @@ function Usage () {
 	# Use fmt to format the output. Prevent lines from being joined
 	# together to allow better formatting.
 	fmt -t -s <<- END
+		CheckServices v${VERSION} (${COMMIT:5:10})
+
 		usage:
 		       checkunits.sh [-p] [-c] [-s] [-v] [-i <Unit>] [-h]
 
@@ -209,8 +211,6 @@ function CheckState () {
 }
 
 
-echo "CheckServices v${VERSION} (${COMMIT:5:10})..."
-
 # Parse command line argument
 declare -a ignoreUnits
 checkPresets=0
@@ -243,6 +243,8 @@ while getopts "pcsvhi:" opt; do
 			;;
 	esac
 done
+
+[ "${silent}" -eq 0 ] && echo "CheckServices v${VERSION} (${COMMIT:5:10})..."
 
 # Gather some global information about systemd
 sdUnitPath=$(systemctl show -p UnitPath)
