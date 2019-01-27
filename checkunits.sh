@@ -28,7 +28,7 @@ function Usage () {
 	# Use fmt to format the output. Prevent lines from being joined
 	# together to allow better formatting.
 	fmt -t -s <<- END
-		CheckServices v${VERSION} (${COMMIT:5:10})
+		CheckUnits v${VERSION} (${COMMIT:5:10})
 
 		usage:
 		       checkunits.sh [-p] [-c] [-s] [-v] [-i <Unit>] [-h]
@@ -244,7 +244,7 @@ while getopts "pcsvhi:" opt; do
 	esac
 done
 
-[ "${silent}" -eq 0 ] && echo "CheckServices v${VERSION} (${COMMIT:5:10})..."
+[ "${silent}" -eq 0 ] && echo "CheckUnits v${VERSION} (${COMMIT:5:10})..."
 
 # Gather some global information about systemd
 sdUnitPath=$(systemctl show -p UnitPath)
