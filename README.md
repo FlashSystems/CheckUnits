@@ -32,7 +32,7 @@ Ignores the given unit. This option can be passed multiple times to ignore multi
 Disables the summary output if no remarks where shown.
 
 ### -v
-Verbose mode shows some additional information messages that are usefull to clearify why specific warnings or errors are not shown. For example: An information message is shown if a unit is anabled but not running because it was disabled by a condition. These warnings are normally suppressed because conditions are legitimated to stop a unit from running. 
+Verbose mode shows some additional information messages that are useful to clarify why specific warnings or errors are not shown. For example: An information message is shown if a unit is enabled but not running because it was disabled by a condition. These warnings are normally suppressed because conditions are legitimated to stop a unit from running. 
 
 ### -h
 Display usage info.
@@ -40,21 +40,21 @@ Display usage info.
 # How it works
 The script does some tests to make sure your current system state matches the systemd configuration. For all non transient systemd units the following checks are performed:
 
-* If the unit has failed an error is reported.
-* If the unit was automatically restarted a warning is reported.
-* If the unit was created by the systemd-sysv-generator to start a legacy init-Script an information is reported.
-* If the unit file could not be found because of a dangling wants or requires symlink an error is reported.
+* If the unit has failed, an error is reported.
+* If the unit was automatically restarted, a warning is reported.
+* If the unit was created by the systemd-sysv-generator to start a legacy init-Script, an information is reported.
+* If the unit file could not be found because of a dangling wants or requires symlink, an error is reported.
 * If the unit is triggered by a timer unit...
-  * and it is not static a warning is reported.
-  * and it is disabled by a condition an information is reported (in verbose mode).
-* If the unit was stopped because it conflicted with an other unit an information is reported. (Only if `-c` is used)
-* If the enabled/disabled state of the unit does not equal the preset state an information is reported. (Only if `-p` is used)
-* If the unit is enabled but not active a warning is reported unless...
+  * and it is not static, a warning is reported.
+  * and it is disabled by a condition, an information is reported (in verbose mode).
+* If the unit was stopped because it conflicted with an other unit, an information is reported. (Only if `-c` is used)
+* If the enabled/disabled state of the unit does not equal the preset state, an information is reported. (Only if `-p` is used)
+* If the unit is enabled but not active, a warning is reported unless...
   * the unit is a one-shot unit and RemainAfterExit is set to "no" or
-	* it was disabled by a condition. (Shows an information message in verbose mode).
-* If the unit is disabled but active a warning is reported unless...
+  * it was disabled by a condition. (Shows an information message in verbose mode).
+* If the unit is disabled but active, a warning is reported unless...
   * the unit is triggered by another unit or
-  * the unit is wanted by another active untit (shows an information message in verbose mode) or
+  * the unit is wanted by another active unit (shows an information message in verbose mode) or
   * the unit is a dbus-unit because these units can be triggered by dbus activation.
 
 # Known issues
