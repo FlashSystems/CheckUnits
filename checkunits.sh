@@ -115,6 +115,11 @@ function CheckState () {
 			remarks+=("W: A unit file triggered by a timer should be static.:The unit is started by a timer and should not need an install section. Mostly you can remove the[[ [Install] ]]section from the unit file in [[${unitInfo['FragmentPath']}]] or create an override with [[systemctl edit ${unitInfo['Id']}]] for package provided units.")
 		fi
 
+		# In verbose mode check if a unit triggered by a timer is disabled by a condition and provide an information for that case.
+		if [ "${verbose}" -gt 0 ] && [ "${triggeredByTimer}" -gt 0 ] && [ -n "${unitInfo['ConditionTimestamp']}" ] && [ "${unitInfo['ConditionResult']}" == 'no' ]; then
+			remarks+=("I: This unit is triggered by a timer but a condition does not allow it to run.:If you think the unit should be running check the condition via [[systemctl cat ${unitInfo['id']}]].")
+		fi
+
 		# If this unit was enabled but is not active and the ConflictedBy value is set we check if any of the 
 		# conflicting units is running. If that's the case the conflicted variable is set.
 		conflicted=0
