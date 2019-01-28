@@ -117,7 +117,7 @@ function CheckState () {
 
 		# In verbose mode check if a unit triggered by a timer is disabled by a condition and provide an information for that case.
 		if [ "${verbose}" -gt 0 ] && [ "${triggeredByTimer}" -gt 0 ] && [ -n "${unitInfo['ConditionTimestamp']}" ] && [ "${unitInfo['ConditionResult']}" == 'no' ]; then
-			remarks+=("I: This unit is triggered by a timer but a condition does not allow it to run.:If you think the unit should be running check the condition via [[systemctl cat ${unitInfo['id']}]].")
+			remarks+=("I: This unit is triggered by a timer but a condition does not allow it to run.:If you think the unit should be running check the condition via [[systemctl cat ${unitInfo['Id']}]].")
 		fi
 
 		# If this unit was enabled but is not active and the ConflictedBy value is set we check if any of the 
