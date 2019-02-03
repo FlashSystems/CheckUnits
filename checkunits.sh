@@ -15,14 +15,26 @@ fi
 shopt -sq nullglob
 
 # Output font and color definitions
-fontBold=$(tput -S <<< $'smul')
-fontInfo=$(tput -S <<< $'setaf black\nsetab 6')
-fontWarn=$(tput -S <<< $'setaf black\nsetab 3')
-fontError=$(tput -S <<< $'setaf black\nsetab 1')
-fontCode=$(tput -S <<< $'bold')
-fontReset=$(tput -S <<< $'sgr0')
-fontDone=$(tput -S <<< $'setaf 2\nbold')
-fontDoneRemarks=$(tput -S <<< $'setaf 3\nbold')
+# If the output is not a terminal do not use any control sequences
+if [ -t 1 ]; then
+	fontBold=$(tput -S <<< $'smul')
+	fontInfo=$(tput -S <<< $'setaf black\nsetab 6')
+	fontWarn=$(tput -S <<< $'setaf black\nsetab 3')
+	fontError=$(tput -S <<< $'setaf black\nsetab 1')
+	fontCode=$(tput -S <<< $'bold')
+	fontReset=$(tput -S <<< $'sgr0')
+	fontDone=$(tput -S <<< $'setaf 2\nbold')
+	fontDoneRemarks=$(tput -S <<< $'setaf 3\nbold')
+else
+	fontBold=''
+	fontInfo=''
+	fontWarn=''
+	fontError=''
+	fontCode=''
+	fontReset=''
+	fontDone=''
+	fontDoneRemarks=''
+fi
 
 function Usage () {
 	# Use fmt to format the output. Prevent lines from being joined
