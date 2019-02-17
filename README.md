@@ -59,7 +59,7 @@ The script does some tests to make sure your current system state matches the sy
 
 # Known issues
 ## disabled dbus units
-For dbus-units it is not checked if there really is a dbus service that activates the given systemd unit. Talking to the dbus service for this check is beyond the scope of this script. For disabled dbus units that are active it is assumed that it was activated via dbus.
+For dbus-units, it is not checked if there really is a dbus service that activates the given systemd unit. Talking to the dbus service for this check is beyond the scope of this script. For disabled dbus units that are active, it is assumed that they where activated via dbus.
 
 ## simple services as oneshot replacements
-Sometimes a simple service is enabled, runs once and stops. This is done to speed up the boot process. When using a oneshot service systemd waits for the unit to finish before starting dependencies. If this is not desired a self terminating simple service is an alternative. RemainAfterExit should be used on this services to prevent `checkunits.sh` from reporting them as enabled but not active.
+Sometimes a simple service is enabled, runs once and stops. This is done to speed up the boot process. When using a oneshot service, systemd waits for the unit to finish, before starting dependencies. If this is not desired, a self terminating simple service is an alternative. RemainAfterExit should be used on this services to prevent `checkunits.sh` from reporting them as enabled, but not active.
