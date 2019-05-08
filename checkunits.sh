@@ -19,6 +19,7 @@ shopt -sq nullglob
 if [ -t 1 ]; then
 	fontBold=$(tput -S <<< $'smul')
 	fontInfo=$(tput -S <<< $'setaf black\nsetab 6')
+	fontRemark=$(tput -S <<< $'setaf 3\nbold')
 	fontWarn=$(tput -S <<< $'setaf black\nsetab 3')
 	fontError=$(tput -S <<< $'setaf black\nsetab 1')
 	fontCode=$(tput -S <<< $'bold')
@@ -28,6 +29,7 @@ if [ -t 1 ]; then
 else
 	fontBold=''
 	fontInfo=''
+	fontRemark=''
 	fontWarn=''
 	fontError=''
 	fontCode=''
@@ -59,7 +61,7 @@ function Usage () {
 		  -i
 		     Ignores the given unit. This option can be passed multiple times to ignore multiple units.
 		  -s
-		     Disables the summary output if no remarks where shown.
+		     Disables the version warning and the summary output if no remarks where shown.
 		  -v
 		     Show additional information massages that are usefull in some cases.
 		  -h
@@ -264,6 +266,16 @@ while getopts "pcsvhi:" opt; do
 done
 
 [ "${silent}" -eq 0 ] && echo "CheckUnits v${VERSION} (${COMMIT:5:10})..."
+
+# Check the systemd version
+IFS=" " read -rs _ version _ < <(systemctl --version)
+if [ "${version}" -lt 239 ] && [ "${silent}" -eq 0 ]; then
+	if [ "${verbose}" -eq 1 ]; then
+		echo -e "${fontRemark}This system uses systemd version $version. This script has been tested with systemd 239 and above. The output may be incorrect or some information may be missing.${fontReset}"
+	else
+		echo -e "${fontRemark}Only systemd 239 and above supported."
+	fi
+fi
 
 # Gather some global information about systemd
 sdUnitPath=$(systemctl show -p UnitPath)

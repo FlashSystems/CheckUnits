@@ -7,9 +7,11 @@ It was tested with the following `bash` versions:
 * 4.4
 * 5.0
 
-And the following `systemd` versions:
+And the following `systemd` versions (a warning is shown if an older version is detected):
 * 239
 * 240
+* 241
+* 242
 
 The script should work with newer versions of `bash` and `systemd` also. If not, please file a bug.
 
@@ -29,7 +31,7 @@ Report units that where stopped because they are in conflict with an other unit.
 Ignores the given unit. This option can be passed multiple times to ignore multiple units.
 
 ### -s
-Disables the summary output if no remarks where shown.
+Disables the version warning and the summary output if no remarks where shown.
 
 ### -v
 Verbose mode shows some additional information messages that are useful to clarify why specific warnings or errors are not shown. For example: An information message is shown if a unit is enabled but not running because it was disabled by a condition. These warnings are normally suppressed because conditions are legitimated to stop a unit from running. 
