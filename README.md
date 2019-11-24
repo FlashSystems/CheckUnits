@@ -7,11 +7,8 @@ It was tested with the following `bash` versions:
 * 4.4
 * 5.0
 
-And the following `systemd` versions (a warning is shown if an older version is detected):
-* 239
-* 240
-* 241
-* 242
+And the following `systemd` versions (a warning is shown if a version older that 239 is detected):
+* 239 to 243
 
 The script should work with newer versions of `bash` and `systemd` also. If not, please file a bug.
 
