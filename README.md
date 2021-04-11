@@ -30,6 +30,9 @@ Ignores the given unit. This option can be passed multiple times to ignore multi
 ### -s
 Disables the version warning and the summary output if no remarks where shown.
 
+### -e
+Shows errors only. This also enables `-s`. This option is usefull, if `checkunits.sh` is used for monitoring your system for unit failures. See chapter *Monitoring* for more details.
+
 ### -v
 Verbose mode shows some additional information messages that are useful to clarify why specific warnings or errors are not shown. For example: An information message is shown if a unit is enabled but not running because it was disabled by a condition. These warnings are normally suppressed because conditions are legitimated to stop a unit from running. 
 
@@ -55,6 +58,16 @@ The script does some tests to make sure your current system state matches the sy
   * the unit is triggered by another unit or
   * the unit is wanted by another active unit (shows an information message in verbose mode) or
   * the unit is a dbus-unit because these units can be triggered by dbus activation.
+
+# Monitoring
+
+CheckUnits can be used for a simple form of monitoring. The following oneliner sends an e-mail containing the output of the script if the return code is not 0:
+
+```
+mailbody=$(mktemp)
+checkunits -e > "${mailbody?}"||mail -q "${mailbody?}" -s "Failed units" -r "MyHost <myhost@mydomain.example" "administrator@mydomain.example"
+rm "${mailbody?}"
+```
 
 # Known issues
 ## disabled dbus units

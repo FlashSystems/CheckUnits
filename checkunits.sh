@@ -62,6 +62,8 @@ function Usage () {
 		     Ignores the given unit. This option can be passed multiple times to ignore multiple units.
 		  -s
 		     Disables the version warning and the summary output if no remarks where shown.
+		  -e
+		     Show errors only. This also enables -s. Use this for sending e-mails, etc.
 		  -v
 		     Show additional information massages that are usefull in some cases.
 		  -h
@@ -71,9 +73,9 @@ function Usage () {
 }
 
 # Checks the state of the unit file by using a bunch of global variables.
-# Globals: unitInfo, ignoreUnits, sdUnitPath, checkPresets, showConflicted, verbose
+# Globals: unitInfo, ignoreUnits, sdUnitPath, checkPresets, showConflicted, verbose, errorsOnly
 # These checks are based on the information in https://www.freedesktop.org/wiki/Software/systemd/dbus/
-# The return code of this function is the number of remarks.
+# The return code of this function is the number of output remarks.
 function CheckState () {
 	local remarks=()
 
@@ -207,10 +209,20 @@ function CheckState () {
 	fi
 
 	# End of checks. Start of output routine
+	local messageCounter=0
+
 	if [ "${#remarks[@]}" -gt 0 ]; then
-		echo "Remarks for unit ${fontBold}${unitInfo['Id']}${fontReset}:"
 		for remark in "${remarks[@]}"; do
 			IFS=":" read -r severity msg suggestion <<< "${remark}"
+
+			# Filter messages that should not be shown here:
+			[ "${errorsOnly}" -gt 0 ] && [ "${severity}" != "E" ] && continue
+
+			# Output the header before the first remark. This prevents a header from being output if
+			# all remarks are filtered.
+			[ "${messageCounter}" == 0 ] && echo "Remarks for unit ${fontBold}${unitInfo['Id']}${fontReset}:"
+			((messageCounter++))
+
 			case "${severity}" in
 				I) echo -en "${fontInfo}[ INFO  ]" ;;
 				W) echo -en "${fontWarn}[WARNING]" ;;
@@ -225,10 +237,11 @@ function CheckState () {
 				echo -e "${suggestion}${fontReset}"
 			fi
 		done
-		echo
 	fi
 
-	return ${#remarks[@]}
+	[ "${messageCounter}" -gt 0 ] && echo
+
+	return "${messageCounter}"
 }
 
 
@@ -238,7 +251,8 @@ checkPresets=0
 showConflicted=0
 silent=0
 verbose=0
-while getopts "pcsvhi:" opt; do
+errorsOnly=0
+while getopts "pcsvehi:" opt; do
 	case "$opt" in
 		'p')
 			checkPresets=1
@@ -254,6 +268,10 @@ while getopts "pcsvhi:" opt; do
 			;;
 		'v')
 			verbose=1
+			;;
+		'e')
+			errorsOnly=1
+			silent=1
 			;;
 		'h')
 			Usage
