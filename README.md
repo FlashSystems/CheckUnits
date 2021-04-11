@@ -34,10 +34,20 @@ Disables the version warning and the summary output if no remarks where shown.
 Shows errors only. This also enables `-s`. This option is usefull, if `checkunits.sh` is used for monitoring your system for unit failures. See chapter *Monitoring* for more details.
 
 ### -v
-Verbose mode shows some additional information messages that are useful to clarify why specific warnings or errors are not shown. For example: An information message is shown if a unit is enabled but not running because it was disabled by a condition. These warnings are normally suppressed because conditions are legitimated to stop a unit from running. 
+Verbose mode shows some additional information messages that are useful to clarify why specific warnings or errors are not shown. For example: An information message is shown if a unit is enabled but not running because it was disabled by a condition. These warnings are normally suppressed because conditions are legitimated to stop a unit from running.
 
 ### -h
 Display usage info.
+
+## Exit codes
+`checkunits.sh` uses the following exit codes to convey the final result of its operation:
+
+| Exit Code |                      Description                       |
+|-----------|--------------------------------------------------------|
+|         0 | The script completed successfully and without remarks. |
+|       127 | The script completed successfully, but with remarks.   |
+|         1 | Invalid command line option.                           |
+|         2 | Unsupported bash version. Use bash 4.0 or newer.       |
 
 # How it works
 The script does some tests to make sure your current system state matches the systemd configuration. For all non transient systemd units the following checks are performed:

@@ -70,6 +70,21 @@ function Usage () {
 		     Display usage info.
 
 	END
+	# Non joind output again
+	fmt -t -s <<- END
+		Depending on the result of the operation the script sets one of the following exit codes:
+	END
+	# Joined output for list (numbers must be right aligned)
+	fmt -t <<- END
+		    0
+		      The script completed successfully and without remarks.
+		  127
+		      The script completed successfully, but with remarks.
+		    1
+		      Invalid command line option.
+		    2
+		      Unsupported bash version. Use bash 4.0 or newer.
+	END
 }
 
 # Checks the state of the unit file by using a bunch of global variables.
@@ -318,3 +333,7 @@ if [ "$messageCount" -gt 0 ]; then
 else
 	[ "${silent}" -eq 0 ] && echo -e "${fontDone}Check completed without remarks.${fontReset} This does not mean everything will work as expected ;)"
 fi
+
+# If everything went well, the exit code is 0
+# If messages where output, the exit code is 127
+[ "${messageCount}" -gt 0 ] && exit 127 || exit 0
