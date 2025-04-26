@@ -46,7 +46,7 @@ function Usage () {
 		CheckUnits v${VERSION} (${COMMIT:5:10})
 
 		usage:
-		       checkunits.sh [-p] [-c] [-s] [-v] [-i <Unit>] [-h]
+		       checkunits.sh [-p] [-c] [-r <Restarts>] [-s] [-v] [-i <Unit>] [-h]
 
 		This shell script checks the systemd configuration of a modern Linux system and makes suggestions to optimize the use of systemd.
 
@@ -58,6 +58,8 @@ function Usage () {
 		     Report if the enabled/disabled state of the unit does not equal the preset state.
 		  -c
 		     Report units that where stopped because they are in conflict with an other unit.
+		  -r
+		     Allows to specify the number of restarts after which a warning is issued for a unit.
 		  -i
 		     Ignores the given unit. This option can be passed multiple times to ignore multiple units.
 		  -s
@@ -88,7 +90,7 @@ function Usage () {
 }
 
 # Checks the state of the unit file by using a bunch of global variables.
-# Globals: unitInfo, ignoreUnits, sdUnitPath, checkPresets, showConflicted, verbose, errorsOnly
+# Globals: unitInfo, ignoreUnits, sdUnitPath, checkPresets, showConflicted, warnRestarts, verbose, errorsOnly
 # These checks are based on the information in https://www.freedesktop.org/wiki/Software/systemd/dbus/
 # The return code of this function is the number of output remarks.
 function CheckState () {
@@ -129,9 +131,20 @@ function CheckState () {
 			*) simpleUnitFileState="${unitInfo['UnitFileState']}"
 		esac
 		
-		# Check for failed and restarted units.
+		# Check for failed units.
 		[ "${simpleState}" == 'failed' ] && remarks+=("E: Unit is is failed state.:Check why it has failed using [[systemctl status ${unitInfo['Id']}]] or use [[journalctl -le -u ${unitInfo['Id']}]] to view the log. If everything is ok but you don't want to restart the unit, you can use [[systemctl reset-failed ${unitInfo['Id']}]] to reset the failed state.")
-		[ -n "${unitInfo['NRestarts']}" ] && [ "${unitInfo['NRestarts']}" -gt 0 ] && remarks+=("W: The Unit ${unitInfo['Id']} was automatically restarted ${unitInfo['NRestarts']} times.:Maybe there is something wrong with it. You should check the logs via [[journalctl -le -u ${unitInfo['Id']}]]. If the unit is stable now, you can reset the restart counter using [[systemctl reset-failed ${unitInfo['Id']}]].")
+
+		# Check for restarted units.
+		if [ -n "${unitInfo['NRestarts']}" ]; then
+			local restartSeverity=""
+			# If we are in verbose mode, we output an information for restartet units.
+			[ "$verbose" -gt 0 ] && [ "${unitInfo['NRestarts']}" -gt 0 ] && restartSeverity='I'
+
+			# If the -r option was given: Check for units with too many restarts and output a warning.
+			[ "$warnRestarts" -gt 0 ] && [ "${unitInfo['NRestarts']}" -ge "$warnRestarts" ] && restartSeverity='W'
+
+			[ -n "$restartSeverity" ] && remarks+=("$restartSeverity: The Unit ${unitInfo['Id']} was automatically restarted ${unitInfo['NRestarts']} times.:You can check the logs via [[journalctl -le -u ${unitInfo['Id']}]] or reset the restart counter using [[systemctl reset-failed ${unitInfo['Id']}]].")
+		fi
 
 		# If the service-unit has a sourcePath that points to /etc/init.d it's a generated legacy unit.
 		# THe Unit file state "generated" can not be used here because it's currently not documented.
@@ -264,16 +277,24 @@ function CheckState () {
 declare -a ignoreUnits
 checkPresets=0
 showConflicted=0
+warnRestarts=0
 silent=0
 verbose=0
 errorsOnly=0
-while getopts "pcsvehi:" opt; do
+while getopts "pcr:svehi:" opt; do
 	case "$opt" in
 		'p')
 			checkPresets=1
 			;;
 		'c')
 			showConflicted=1
+			;;
+		'r')
+			if ! [[ "$OPTARG" =~ ^[1-9][0-9]*$ ]]; then
+				echo "Invalid argument for -r. Only positive numbers are allowed."
+				exit 1
+			fi
+			warnRestarts=$OPTARG
 			;;
 		's')
 			silent=1

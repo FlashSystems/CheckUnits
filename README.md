@@ -32,6 +32,10 @@ Shows a warning if the enabled/disabled state of the unit does not equal the pre
 
 Report units that where stopped because they are in conflict with an other unit.
 
+### -r *Restarts*
+
+Allows to specify the number of restarts after which a warning is issued for a unit.
+
 ### -i *Unit*
 
 Ignores the given unit. This option can be passed multiple times to ignore multiple units.
