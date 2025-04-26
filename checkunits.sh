@@ -152,7 +152,7 @@ function CheckState () {
 
 		# Units triggered by timer units should be static
 		# Check each trigger if it's a timer
-		triggeredByTimer=0
+		local triggeredByTimer=0
 		while IFS='' read -rs -d' ' trigger; do
 			[ "${trigger##*.}" == "timer" ] && triggeredByTimer=1 && break
 		done <<< "${unitInfo['TriggeredBy']} " # Mind the space at the end!
