@@ -18,10 +18,10 @@ shopt -sq nullglob
 # If the output is not a terminal, do not use any control sequences.
 if [ -t 1 ]; then
 	fontBold=$(tput -S <<< $'smul')
-	fontInfo=$(tput -S <<< $'setaf black\nsetab 6')
+	fontInfo=$(tput -S <<< $'setaf 0\nsetab 6')
 	fontRemark=$(tput -S <<< $'setaf 3\nbold')
-	fontWarn=$(tput -S <<< $'setaf black\nsetab 3')
-	fontError=$(tput -S <<< $'setaf black\nsetab 1')
+	fontWarn=$(tput -S <<< $'setaf 0\nsetab 3')
+	fontError=$(tput -S <<< $'setaf 0\nsetab 1')
 	fontCode=$(tput -S <<< $'bold')
 	fontReset=$(tput -S <<< $'sgr0')
 	fontDone=$(tput -S <<< $'setaf 2\nbold')
